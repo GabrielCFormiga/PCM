@@ -5,6 +5,8 @@ class cluster {
         // atributos
         int itl, jtl, ibr, jbr; // tl = top left, br = bottom right
         int num_buracos;
+        int pior_linha, num_zeros_pior_linha;
+        int pior_coluna, num_zeros_pior_coluna; // pior = maior numero de buracos
         float percentual_de_buracos;
 
         // construtores

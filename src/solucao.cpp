@@ -82,11 +82,36 @@ void solucao::trocarColunas(int x, int y) {
 }
 
 void solucao::exibeMatriz() {
+    int posj; // para viajar pelo vetor de clusters por colunas
+    int posi = 0; // para viajat pelo vetor de cluster por linhas
+
     for (int i = 0; i <= num_maquinas; i++) {
+        posj = 0;
+
         for (int j = 0; j <= num_partes; j++) {
             std::cout << std::setw(5) << matriz[i][j];
-            // j != num_partes ? std::cout << ' ' : std::cout << std::endl;
+
+            // imprime o limite vertical dos clusters
+            if (clusters[posj].jbr == j && j != num_partes) {
+                std::cout << std::setw(5) << "|";
+                posj++;
+            }
+
             if(j == num_partes) std::cout << std::endl;
+        }
+
+        // imprime o limite horizontal dos clusters
+        if (clusters[posi].ibr == i && i != num_maquinas) {
+            int len = 5 * (num_partes + clusters.size() - 1);
+
+            std::cout << std::setw(5) << "-"; // indentação do primeiro "-"
+            for (int k = 1; k <= len; k++) {
+                std::cout << "-";
+
+                if(k == len) std::cout << std::endl;
+            }
+
+            posi++;
         }
     }
 }
@@ -101,6 +126,55 @@ void solucao::splitCluster(int pos) {
     
     clusters.insert(clusters.begin() + pos + 1, add);
     num_clusters++;
+}
+
+// atualiza as informações do cluster na posição pos
+// atualiza pior linha e pior coluna
+void solucao::atualizaCluster(int pos) {
+    int itl = clusters[pos].itl;
+    int ibr = clusters[pos].ibr;
+    int jtl = clusters[pos].jtl;
+    int jbr = clusters[pos].jbr;
+    
+    // atualiza pior linha
+    int maior_num_de_zeros = -1;
+    int pos_pior_linha;
+
+    for (int i = itl; i <= ibr; i++) {
+        int num_de_zeros = 0;
+    
+        for(int j = jtl; j <= jbr; j++) {
+            if (matriz[i][j] != "1") num_de_zeros++;
+        }
+
+        if (num_de_zeros > maior_num_de_zeros) {
+            maior_num_de_zeros = num_de_zeros;
+            pos_pior_linha = i;
+        }
+    }
+
+    clusters[pos].pior_linha = pos_pior_linha;
+    clusters[pos].num_zeros_pior_linha = maior_num_de_zeros;
+
+    // atualiza pior coluna
+    maior_num_de_zeros = -1;
+    int pos_pior_coluna;
+
+    for (int j = jtl; j <= jbr; j++) {
+        int num_de_zeros = 0;
+    
+        for(int i = itl; i <= ibr; i++) {
+            if (matriz[i][j] != "1") num_de_zeros++;
+        }
+
+        if (num_de_zeros > maior_num_de_zeros) {
+            maior_num_de_zeros = num_de_zeros;
+            pos_pior_coluna = j;
+        }
+    }
+
+    clusters[pos].pior_coluna = pos_pior_coluna;
+    clusters[pos].num_zeros_pior_coluna = maior_num_de_zeros;
 }
 
 // retorna a posicao do cluster com maior numero de buracos

@@ -22,6 +22,7 @@ class solucao {
         void trocarColunas(int x, int y);
         void exibeMatriz();
         void splitCluster(int pos);
+        void atualizaCluster(int pos);
         int procuraPiorCluster();
 
 };
