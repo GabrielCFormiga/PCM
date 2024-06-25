@@ -39,6 +39,7 @@ solucao::~solucao(){
 // faz a leitura dos n * m elemntos da matriz
 // cria dois clusters iniciais
 // calcula a quantidade de 1's na matriz
+// calcula a eficacia inicial
 void solucao::atualizaMatriz() {
     int soma = 0;
 
@@ -61,6 +62,8 @@ void solucao::atualizaMatriz() {
 
     // atualiza a soma total de 1's
     num_1 = soma;
+
+    atualizaEficacia();
 }
 
 // troca de posicao as linhas x e y
@@ -128,6 +131,16 @@ void solucao::splitCluster(int pos) {
     num_clusters++;
 }
 
+// une o cluste da posicao pos com a posicao pos + 1
+// ! cuidado para não passar pos = clusters.size() - 1
+void solucao::unionClusters(int pos) {
+    clusters[pos].ibr = clusters[pos + 1].ibr;
+    clusters[pos].jbr = clusters[pos + 1].jbr;
+
+    clusters.erase(clusters.begin() + pos + 1);
+    num_clusters--;
+}
+
 // atualiza as informações do cluster na posição pos
 // atualiza pior linha e pior coluna
 void solucao::atualizaCluster(int pos) {
@@ -177,10 +190,29 @@ void solucao::atualizaCluster(int pos) {
     clusters[pos].num_zeros_pior_coluna = maior_num_de_zeros;
 }
 
+void solucao::atualizaEficacia() {
+    int num_1_internos = 0; // numeros de 1's dentro de clusters
+    int num_elementos_internos = 0; // numero de elemntos dentro de clusters
+
+    for (int k = 0; k < num_clusters; k++) {
+        for (int i = clusters[k].itl; i <= clusters[k].ibr; i++) {
+             for (int j = clusters[k].jtl; j <= clusters[k].jbr; j++) {
+                if (matriz[i][j] == "1") num_1_internos++;
+                num_elementos_internos++;
+            }
+        }
+    }
+
+    num_1_externos = num_1 - num_1_internos;
+    num_0_internos = num_elementos_internos - num_1_internos;
+
+    eficacia = ((float) num_1 - num_1_externos) / (num_1 + num_0_internos); 
+}
+
 // retorna a posicao do cluster com maior numero de buracos
 // indiretamente atualiza:
 //          - o percentual de buracos em cada cluster
-//          - o numeoro de buracos em cada cluster
+//          - o numero de buracos em cada cluster
 int solucao::procuraPiorCluster() {
     float maior_percentual = -1, pos;
 
