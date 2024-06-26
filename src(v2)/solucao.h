@@ -18,7 +18,12 @@ class solucao {
     int qtdMaquinas, qtdPartes, qtdClusters;
 
     // n1 é a qtd de 1's total na matriz
+    // n1out é a qtd de 1's fora de clusters
+    // n0in é a qtd de 0's dentro de clusters
     int n1, n1out, n0in;
+
+    // eficacia = (n1 - n1out) / (n1 + n0in)
+    float eficacia;
 
 // construtores
     solucao();
@@ -32,7 +37,6 @@ class solucao {
     int moverParte();
     void swapMaquinas();
     void swapPartes();
-    //getFObj()
-
+    float getFObj();
 
 };

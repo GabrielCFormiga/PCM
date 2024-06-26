@@ -264,3 +264,25 @@ void solucao::swapPartes() {
     partes[pos] = partes[troca];
     partes[troca] = c; 
 }
+
+// Calcula a função objetivo
+float solucao::getFObj() {
+    // n1in é a qtd de 1's dentro de clusters
+    // n0in é a qtd de 0's dentro de clusters
+    int tmp_n1in = 0, tmp_n0in = 0;
+    for (int i = 0; i < qtdMaquinas; i++) {
+        for (int j = 0; j < qtdPartes; j++) {
+            if (maquinas[i] == partes[j]) {
+                // está dentro de um cluster
+                if (matriz[i][j] == 1) tmp_n1in++;
+                else tmp_n0in++;
+            }
+        }
+    }
+
+    n1out = n1 - tmp_n1in;
+    n0in = tmp_n0in;
+
+    eficacia = ((float) n1 - n1out) / (n1 + n0in);
+    return eficacia;
+}
