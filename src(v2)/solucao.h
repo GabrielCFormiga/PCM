@@ -26,10 +26,10 @@ class solucao {
 
 // métodos
     void setMatriz();
-    void unionCluster(int x, int y);
-    int splitCluster(int x);
-    int moverMaquina(int m, int c);
-    int moverParte(int p, int c);
+    int unionCluster();
+    int splitCluster();
+    int moverMaquina();
+    int moverParte();
     void swapMaquinas();
     void swapPartes();
     //getFObj()

@@ -64,9 +64,16 @@ void solucao::setMatriz() {
     n1 = soma;
 }
 
-// une os clusters x e y
-void solucao::unionCluster(int x, int y) {
-    if (x = y) return;
+// une dois clusters escolhidos aleatoriamente
+// retorna 0 se não foi possível unir dois clusters
+// retorna 1 se foi possível
+int solucao::unionCluster() {
+    if (qtdClusters == 1) return 0;
+
+    // escolhe os clusters 
+    int x = intervalRand(1, qtdClusters);
+    int y = intervalRand(1, qtdClusters);
+    while (y == x) y = intervalRand(1, qtdClusters);
     if (x < y) std::swap(x, y); 
 
     // une as maquinas
@@ -102,12 +109,26 @@ void solucao::unionCluster(int x, int y) {
     }
 
     qtdClusters--;
+    return 1;
 }
 
-// se possivel, divide o cluster x pela metade e adiciona o novo cluster ao final da fila
-int solucao::splitCluster(int x) {
-    if (clusters[x - 1].first == 1 || clusters[x - 1].second == 1) return 0;
-    
+// divide um cluster (escolhido aleatoriamente) pela metade
+// retona 0 se não foi possível dividir algum cluster
+// retorn 1 se foi possível
+int solucao::splitCluster() {
+    // armazena os clusters que podem ser divididos
+    std::vector<int> possivel;
+    for(int i = 0; i < qtdClusters; i++) {
+        if (clusters[i].first > 1 && clusters[i].second > 1) possivel.push_back(i + 1);
+    }
+
+    if (possivel.empty()) return 0;
+
+    // escolhe o cluster a ser dividido
+    // x é o número do cluster
+    int aux = intervalRand(0, possivel.size() - 1);
+    int x = possivel[aux];
+
     // divide as maquinas
     int splits = (clusters[x - 1].first) / 2;
     
@@ -140,30 +161,69 @@ int solucao::splitCluster(int x) {
     return 1;
 }
 
-// altera o cluster da maquina m para c
-int solucao::moverMaquina(int m, int c) {
-    if (clusters[maquinas[m - 1] - 1].first == 1) return 0;
+// move uma maquina (escolhida aleatoriamente) de cluster
+// retorna 0 se não foi possível mover alguma máquina
+// retorna 1 se foi possível
+int solucao::moverMaquina() {
+    // armazena as posicoes das maquinas que podem ser movidas
+    std::vector<int> possivel;
+    for (int i = 0; i < qtdMaquinas; i++) {
+        if (clusters[maquinas[i] - 1].first > 1) possivel.push_back(i);
+    }
 
-    clusters[maquinas[m - 1] - 1].first--;
-    maquinas[m - 1] = c;
-    clusters[c - 1].first++;
+    if (possivel.empty()) return 0;
+
+    // escolhe a maquina a ser movida
+    // pos é a sua posicao no vetor de maquinas
+    // c é o seu cluster inicial
+    int aux = intervalRand(0, possivel.size() - 1);
+    int pos = possivel[aux];
+    int c = maquinas[pos];
+    
+    // escolhe o novo cluster
+    int novo = intervalRand(1, qtdClusters);
+    while (novo == c) novo = intervalRand(1, qtdClusters);
+
+    clusters[c - 1].first--;
+    maquinas[pos] = novo;
+    clusters[novo - 1].first++;
     return 1;
 }
 
-// altera o cluster da parte p para c
-int solucao::moverParte(int p, int c) {
-    if (clusters[partes[p - 1] - 1].second == 1) return 0;
+// move uma parte (escolhida aleatoriamente) de cluster
+// retorna 0 se não foi possível mover alguma parte
+// retorna 1 se foi possível
+int solucao::moverParte() {
+   // armazena as posicoes das partes que podem ser movidas
+    std::vector<int> possivel;
+    for (int i = 0; i < qtdPartes; i++) {
+        if (clusters[partes[i] - 1].second > 1) possivel.push_back(i);
+    }
 
-    clusters[partes[p - 1] - 1].second--;
-    partes[p - 1] = c;
-    clusters[c - 1].second++;
+    if (possivel.empty()) return 0;
+
+    // escolhe a parte a ser movida
+    // pos é a sua posicao no vetor de partes
+    // c é o seu cluster inicial
+    int aux = intervalRand(0, possivel.size() - 1);
+    int pos = possivel[aux];
+    int c = partes[pos];
+    
+    // escolhe o novo cluster
+    int novo = intervalRand(1, qtdClusters);
+    while (novo == c) novo = intervalRand(1, qtdClusters);
+
+    clusters[c - 1].second--;
+    partes[pos] = novo;
+    clusters[novo - 1].second++;
     return 1;
 }
 
-// troca duas maquinas escolhidas aleatoriamente de cluster
+// troca duas maquinas (escolhidas aleatoriamente) de cluster
 void solucao::swapMaquinas() {
     // escolhe uma maquina aleatoriamente
     // pos é a sua posicão no vetor de maquinas
+    // c é o seu cluster incial
     int pos = intervalRand(0, qtdMaquinas - 1);
     int c = maquinas[pos];
 
@@ -182,10 +242,11 @@ void solucao::swapMaquinas() {
     maquinas[troca] = c;
 }
 
-// troca duas partes escolhidas aleatoriamente de cluster 
+// troca duas partes (escolhidas aleatoriamente) de cluster 
 void solucao::swapPartes() {
     // escolhe uma parte aleatoriamente
     // pos é a sua posicao no vetor de partes
+    // c é o seu cluster inicial
     int pos = intervalRand(0, qtdPartes - 1);
     int c = partes[pos];
 
