@@ -16,7 +16,9 @@ class solucao {
     std::vector<int> partes; 
 
     int qtdMaquinas, qtdPartes, qtdClusters;
-    int n1;
+
+    // n1 é a qtd de 1's total na matriz
+    int n1, n1out, n0in;
 
 // construtores
     solucao();
@@ -25,6 +27,12 @@ class solucao {
 // métodos
     void setMatriz();
     void unionCluster(int x, int y);
-    void splitCluster(int x);
+    int splitCluster(int x);
+    int moverMaquina(int m, int c);
+    int moverParte(int p, int c);
+    void swapMaquinas();
+    void swapPartes();
+    //getFObj()
+
 
 };
