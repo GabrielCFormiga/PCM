@@ -22,8 +22,8 @@ solucao::solucao(int qtdM, int qtdP){
     maquinas.resize(qtdM);
     partes.resize(qtdP);
 
-    // note que o numero maximo de clusters é min(qtdM, qtdP)
-    // contudo, o vetor é usado de i = 0 até i < qtdClusters
+    // note que o número máximo de clusters é min(qtdM, qtdP)
+    // contudo, o vetor é usado de i = 0 até i = qtdClusters - 1
     clusters.resize(std::min(qtdM, qtdP));
 
     // gera os cluters iniciais
@@ -31,19 +31,23 @@ solucao::solucao(int qtdM, int qtdP){
 
     for (int i = 0; i < qtdM; i++) {
         if (i < qtdM / 2) {
+            // adiciona a máquina ao cluster 1
             maquinas[i] = 1;
             clusters[0].first++;
         } else {
+            // adiciona a máquina ao cluster 2
             maquinas[i] = 2;
-            clusters[0].first++;
+            clusters[1].first++;
         }
     }
 
     for (int i = 0; i < qtdP; i++) {
         if (i < qtdP / 2) {
+            // adiciona a parte ao cluster 1
             partes[i] = 1;
-            clusters[1].second++;
+            clusters[0].second++;
         } else {
+            // adiciona a parte ao cluster 2
             partes[i] = 2;
             clusters[1].second++;
         }
@@ -52,7 +56,7 @@ solucao::solucao(int qtdM, int qtdP){
 
 // faz a leitura da matriz do problema
 // calcula n1
-// atualiza a eficacia
+// calcula a eficacia inicial
 void solucao::setMatriz() {
     int soma = 0;
 
@@ -128,18 +132,20 @@ int solucao::splitCluster() {
     if (possivel.empty()) return 0;
 
     // escolhe o cluster a ser dividido
-    // x é o número do cluster
+    // c é o número do cluster
+    // novo é o número do cluster que vai surgir
     int aux = intervalRand(0, possivel.size() - 1);
-    int x = possivel[aux];
+    int c = possivel[aux];
+    int novo = qtdClusters + 1;
 
     // divide as maquinas
-    int splits = (clusters[x - 1].first) / 2;
+    int splits = (clusters[c - 1].first) / 2;
     
     for (int i = 0; i < qtdMaquinas; i++) {
-        if (maquinas[i] == x) {
-            clusters[x - 1].first--;
-            maquinas[i] = qtdClusters;
-            clusters[qtdClusters - 1].first++;
+        if (maquinas[i] == c) {
+            clusters[c - 1].first--;
+            maquinas[i] = novo;
+            clusters[novo - 1].first++;
             splits--;
         }
 
@@ -147,19 +153,20 @@ int solucao::splitCluster() {
     }
 
     // divide as partes
-    splits = (clusters[x - 1].second) / 2;
+    splits = (clusters[c - 1].second) / 2;
 
     for (int i = 0; i < qtdPartes; i++) {
-        if (partes[i] == x) {
-            clusters[x - 1].second--;
-            partes[i] = qtdClusters;
-            clusters[qtdClusters - 1].second++;
+        if (partes[i] == c) {
+            clusters[c - 1].second--;
+            partes[i] = novo;
+            clusters[novo - 1].second++;
             splits--;
         }
 
         if (splits == 0) break;
     }
 
+    // adiciona o novo cluster à conta
     qtdClusters++;
     return 1;
 }
@@ -239,10 +246,11 @@ void solucao::swapMaquinas() {
     }
 
     // escolhe a posicao da troca aleatoriamente
-    int troca = intervalRand(0, possivel.size() - 1);
+    int aux = intervalRand(0, possivel.size() - 1);
+    int posTroca = possivel[aux];
 
-    maquinas[pos] = maquinas[troca];
-    maquinas[troca] = c;
+    maquinas[pos] = maquinas[posTroca];
+    maquinas[posTroca] = c;
 }
 
 // troca duas partes (escolhidas aleatoriamente) de cluster 
@@ -262,10 +270,11 @@ void solucao::swapPartes() {
     }
 
     // escolhe a posicao de troca aleatoriamente
-    int troca = intervalRand(0, possivel.size() - 1);
+    int aux = intervalRand(0, possivel.size() - 1);
+    int posTroca = possivel[aux];
 
-    partes[pos] = partes[troca];
-    partes[troca] = c; 
+    partes[pos] = partes[posTroca];
+    partes[posTroca] = c; 
 }
 
 // Calcula a função objetivo
@@ -287,6 +296,6 @@ float solucao::getFObj() {
     n1out = n1 - tmp_n1in;
     n0in = tmp_n0in;
 
-    eficacia = ((float) n1 - n1out) / (n1 + n0in);
+    eficacia = ((float)(n1 - n1out)) / (n1 + n0in);
     return eficacia;
 }
