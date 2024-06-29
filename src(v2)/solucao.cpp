@@ -2,6 +2,7 @@
 #include "snippets.h"
 #include <iostream>
 #include <algorithm>
+#include <iomanip>
 
 solucao::solucao(){
 
@@ -51,6 +52,7 @@ solucao::solucao(int qtdM, int qtdP){
 
 // faz a leitura da matriz do problema
 // calcula n1
+// atualiza a eficacia
 void solucao::setMatriz() {
     int soma = 0;
 
@@ -62,6 +64,7 @@ void solucao::setMatriz() {
     }
 
     n1 = soma;
+    getFObj();
 }
 
 // une dois clusters escolhidos aleatoriamente
@@ -266,6 +269,7 @@ void solucao::swapPartes() {
 }
 
 // Calcula a função objetivo
+// atualiza a eficacia
 float solucao::getFObj() {
     // n1in é a qtd de 1's dentro de clusters
     // n0in é a qtd de 0's dentro de clusters
