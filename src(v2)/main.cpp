@@ -18,8 +18,8 @@ int main() {
     // começo do SA
     solucao sMelhor = s;
     float alpha = 0.98; // coeficiente de resfriamento
-    int iterT = 0, T = 900; // número de iterações na temperatura T 
-    int SAmax = 50;
+    int iterT = 0, T = 1000; // número de iterações na temperatura T 
+    int SAmax = 200;
 
     while (T > 0) {
         cout << "T = " << T << endl;
@@ -61,17 +61,20 @@ int main() {
                 cout << "\tpassou mover Maquina" << endl;
                 if (sLinha.moverMaquina() == 0) {
                     // caso em que o número de cluster é máximo ou 1
-                    // caso seja 1 a operação não alteraria a eficácoa
+                    // caso seja 1 a operação não alteraria a eficácia
                     // se qtdMaquinas == qtdPartes, então mover uma parte também é impossível
                     // escolha entre swapParte, swapMaquina ou unionCluster
                     int opNovo = intervalRand(0, 60);
+                    if (n != m) opNovo = intervalRand(0, 80); // caso em que se pode mover uma parte
 
                     if (opNovo <= 20) {
                         sLinha.unionCluster();
                     } else if (opNovo <= 40) {
                         sLinha.swapPartes();
-                    } else {
+                    } else if (opNovo <= 60) {
                         sLinha.swapMaquinas();
+                    } else {
+                        sLinha.moverParte();
                     }
                 }
             } else if (op <= 60) {
@@ -79,17 +82,20 @@ int main() {
                 cout << "\tpassou mover Parte" << endl;
                 if (sLinha.moverParte() == 0) {
                     // caso em que o número de clusters é máximo ou 1
-                    // caso seja 1 a operação não alteraria a eficácoa
+                    // caso seja 1 a operação não alteraria a eficácia
                     // se qtdPartes == qtdMaquinas, então mover uma maquina também é impossível
                     // escolha entre swapParte, swapMaquina ou unionCluster
                     int opNovo = intervalRand(0, 60);
+                    if (n != m) opNovo = intervalRand(0, 80); // caso em que se pode mover uma maquina
 
                     if (opNovo <= 20) {
                         sLinha.unionCluster();
                     } else if (opNovo <= 40) {
                         sLinha.swapPartes();
-                    } else {
+                    } else if (opNovo <= 60) {
                         sLinha.swapMaquinas();
+                    } else {
+                        sLinha.moverMaquina();
                     }
                 }
             } else if (op <= 80) {
