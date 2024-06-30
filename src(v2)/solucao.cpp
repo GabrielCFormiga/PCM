@@ -4,13 +4,17 @@
 #include <algorithm>
 #include <iomanip>
 
-solucao::solucao(){
+solucao::solucao() {
+
+}
+
+solucao::~solucao() {
 
 }
 
 // inicializa o objeto de acordo com as dimensões da matriz de entrada
 // qtdClusters = 2
-solucao::solucao(int qtdM, int qtdP){
+solucao::solucao(int qtdM, int qtdP) {
     qtdMaquinas = qtdM;
     qtdPartes = qtdP;
 
@@ -175,6 +179,8 @@ int solucao::splitCluster() {
 // retorna 0 se não foi possível mover alguma máquina
 // retorna 1 se foi possível
 int solucao::moverMaquina() {
+    if (qtdClusters == 1) return 0; // não faz sentido a operação
+
     // armazena as posicoes das maquinas que podem ser movidas
     std::vector<int> possivel;
     for (int i = 0; i < qtdMaquinas; i++) {
@@ -204,7 +210,9 @@ int solucao::moverMaquina() {
 // retorna 0 se não foi possível mover alguma parte
 // retorna 1 se foi possível
 int solucao::moverParte() {
-   // armazena as posicoes das partes que podem ser movidas
+    if (qtdClusters == 1) return 0; // não faz sentido a operação
+
+    // armazena as posicoes das partes que podem ser movidas
     std::vector<int> possivel;
     for (int i = 0; i < qtdPartes; i++) {
         if (clusters[partes[i] - 1].second > 1) possivel.push_back(i);
@@ -230,7 +238,11 @@ int solucao::moverParte() {
 }
 
 // troca duas maquinas (escolhidas aleatoriamente) de cluster
-void solucao::swapMaquinas() {
+// retorna 0 se só há um cluster, ou seja, swap não altera a eficacia da solucao
+// rerorna 1 caso contrário
+int solucao::swapMaquinas() {
+    if (qtdClusters == 1) return 0;
+
     // escolhe uma maquina aleatoriamente
     // pos é a sua posicão no vetor de maquinas
     // c é o seu cluster incial
@@ -251,10 +263,16 @@ void solucao::swapMaquinas() {
 
     maquinas[pos] = maquinas[posTroca];
     maquinas[posTroca] = c;
+
+    return 1;
 }
 
 // troca duas partes (escolhidas aleatoriamente) de cluster 
-void solucao::swapPartes() {
+// retorna 0 se só há um cluster, ou seja, swap não altera a eficacia da solucao
+// rerorna 1 caso contrário
+int solucao::swapPartes() {
+    if (qtdClusters == 1) return 0;
+
     // escolhe uma parte aleatoriamente
     // pos é a sua posicao no vetor de partes
     // c é o seu cluster inicial
@@ -275,6 +293,8 @@ void solucao::swapPartes() {
 
     partes[pos] = partes[posTroca];
     partes[posTroca] = c; 
+
+    return 1;
 }
 
 // Calcula a função objetivo

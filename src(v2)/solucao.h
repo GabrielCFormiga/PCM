@@ -28,6 +28,7 @@ class solucao {
 
     // construtores
         solucao();
+        ~solucao();
         solucao(int qtdM, int qtdP);
 
     // métodos
@@ -36,8 +37,8 @@ class solucao {
         int splitCluster();
         int moverMaquina();
         int moverParte();
-        void swapMaquinas();
-        void swapPartes();
+        int swapMaquinas();
+        int swapPartes();
         float getFObj();
         
 };
