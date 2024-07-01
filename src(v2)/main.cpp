@@ -45,15 +45,25 @@ int main() {
                 if (sLinha.splitCluster() == 0) {
                     // caso em que o número de clusters é máximo
                     // mover uma parte ou uma máquina é impossível
+                    // se a matriz não for quadrada uma das operações de mover é possível
                     // escolha entre swapParte, swapMaquina ou unionCluster
                     int opNovo = intervalRand(0, 60);
+                    if (n != m) opNovo = intervalRand(0, 80); // caso em que uma das operações de mover é possível
 
                     if (opNovo <= 20) {
                         sLinha.unionCluster();
                     } else if (opNovo <= 40) {
                         sLinha.swapPartes();
-                    } else {
+                    } else if (opNovo <= 60) {
                         sLinha.swapMaquinas();
+                    } else {
+                        if (m > n) {
+                            // o número de partes é maior do que o de máquinas
+                            sLinha.moverParte();
+                        } else {
+                            // o número de máquinas é maior do que o de partes
+                            sLinha.moverMaquina();
+                        }
                     }
                 }
             } else if (op <= 40) {
@@ -135,4 +145,7 @@ int main() {
     }
 
     cout << sMelhor.eficacia << endl;
+    cout << "n1 = " << sMelhor.n1 << endl;
+    cout << "n1out = " << sMelhor.n1out << endl;
+    cout << "n0in = " << sMelhor.n0in << endl;
 }
