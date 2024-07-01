@@ -148,4 +148,5 @@ int main() {
     cout << "n1 = " << sMelhor.n1 << endl;
     cout << "n1out = " << sMelhor.n1out << endl;
     cout << "n0in = " << sMelhor.n0in << endl;
+    sMelhor.exibeSolucao();
 }

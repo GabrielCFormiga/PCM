@@ -3,6 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include <iomanip>
+#include <string>
 
 solucao::solucao() {
 
@@ -318,4 +319,77 @@ float solucao::getFObj() {
 
     eficacia = ((float)(n1 - n1out)) / (n1 + n0in);
     return eficacia;
+}
+
+void solucao::exibeSolucao() {
+    // cria a matriz exibicao
+    std::vector<std::vector<std::string>> matrizExibicao(2 + qtdMaquinas + qtdClusters);
+    for (int k = 0; k < matrizExibicao.size(); k++) {
+        matrizExibicao[k].resize(2 + qtdPartes + qtdClusters, " ");
+    }
+
+    // estabelece as divisões iniciais
+    // |
+    // |
+    // |
+    for (int k = 2; k < matrizExibicao.size(); k++) {
+        matrizExibicao[k][1] = "|";
+    }
+    // -----
+    for (int k = 1; k < matrizExibicao[1].size(); k++) {
+        matrizExibicao[1][k] = "-";
+    }
+    
+
+    // calcula as sequências de maquinas e partes de acordo com os clusters
+    int posi = 2;
+    int posj = 2;
+    for (int k = 1; k <= qtdClusters; k++) {
+        // viaja pelas maquinas
+        for (int maq = 1; maq <= qtdMaquinas; maq++) {
+            if (maquinas[maq - 1] == k) {
+                matrizExibicao[posi][0] = std::to_string(maq);
+                posi++;
+            }
+        }
+        posi++;
+
+        // viaja pelas parte
+        for (int par = 1; par <= qtdPartes; par++) {
+            if (partes[par - 1] == k) {
+                matrizExibicao[0][posj] = std::to_string(par);
+                posj++;
+            }
+        }
+        posj++;
+    }
+
+    // preenche a matriz exibicao
+    for (int i = 2; i < matrizExibicao.size(); i++) {
+        for (int j = 1; j < matrizExibicao[i].size(); j++) {
+            if (matrizExibicao[i][0] == " ") {
+                matrizExibicao[i][j] = "-";
+            } else if (matrizExibicao[0][j] == " ") {
+                matrizExibicao[i][j] = "|";
+            } else {
+                int maq = std::stoi(matrizExibicao[i][0]);
+                int par = std::stoi(matrizExibicao[0][j]);
+
+                if (matriz[maq - 1][par - 1] == 1) {
+                    matrizExibicao[i][j] = "1";
+                } else {
+                    matrizExibicao[i][j] = " ";
+                }
+            }
+        }
+    }
+
+    // exibe
+    for (int i = 0; i < matrizExibicao.size(); i++) {
+        for (int j = 0; j < matrizExibicao[i].size(); j++) {
+            std::cout << std::setw(4) << matrizExibicao[i][j];
+        }
+        std::cout << std::endl;
+    }
+
 }
