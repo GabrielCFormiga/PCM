@@ -1,240 +1,395 @@
 #include "solucao.h"
+#include "snippets.h"
 #include <iostream>
+#include <algorithm>
 #include <iomanip>
+#include <string>
 
 solucao::solucao() {
 
 }
 
-// inicializa o objeto com uma matriz de tamanho n + 1, m + 1
-// linha 0 guarda indicacao das partes
-// coluna 0 guarda indicacao das maquina
-solucao::solucao(int n, int m) {
-    num_maquinas = n;
-    num_partes = m;
-    matriz.resize(n + 1);
-    for (int i = 0; i <= n; ++i) {
-        matriz[i].resize(m + 1, " ");
+solucao::~solucao() {
+
+}
+
+// inicializa o objeto de acordo com as dimensões da matriz de entrada
+// qtdClusters = 2
+solucao::solucao(int qtdM, int qtdP) {
+    qtdMaquinas = qtdM;
+    qtdPartes = qtdP;
+
+    matriz.resize(qtdM);
+    for (int i = 0; i < qtdM; i++) {
+        matriz[i].resize(qtdP);
     }
 
-    // nomeia colunas P1, P2, ..., Pm
-    for (int j = 1; j <= m; j++) {
-        std::string str = "P";
-        str += std::to_string(j); 
-        matriz[0][j] = str;
-    } 
+    maquinas.resize(qtdM);
+    partes.resize(qtdP);
 
-    // nomeia linhas M1, M2, ..., Mn
-    for (int i = 1; i <= n; i++) {
-        std::string str = "M";
-        str += std::to_string(i);
-        matriz[i][0] = str;
-    } 
+    // note que o número máximo de clusters é min(qtdM, qtdP)
+    // contudo, o vetor é usado de i = 0 até i = qtdClusters - 1
+    clusters.resize(std::min(qtdM, qtdP));
+
+    // gera os cluters iniciais
+    qtdClusters = 2;
+
+    for (int i = 0; i < qtdM; i++) {
+        if (i < qtdM / 2) {
+            // adiciona a máquina ao cluster 1
+            maquinas[i] = 1;
+            clusters[0].first++;
+        } else {
+            // adiciona a máquina ao cluster 2
+            maquinas[i] = 2;
+            clusters[1].first++;
+        }
+    }
+
+    for (int i = 0; i < qtdP; i++) {
+        if (i < qtdP / 2) {
+            // adiciona a parte ao cluster 1
+            partes[i] = 1;
+            clusters[0].second++;
+        } else {
+            // adiciona a parte ao cluster 2
+            partes[i] = 2;
+            clusters[1].second++;
+        }
+    }
 }
 
-solucao::~solucao(){
-
-}
-
-// faz a leitura dos n * m elemntos da matriz
-// cria dois clusters iniciais
-// calcula a quantidade de 1's na matriz
+// faz a leitura da matriz do problema
+// calcula n1
 // calcula a eficacia inicial
-void solucao::atualizaMatriz() {
+void solucao::setMatriz() {
     int soma = 0;
 
-    // faz a leitura da matriz
-    for (int i = 1; i <= num_maquinas; i++) {
-        for (int j = 1; j <= num_partes; j++) {
-            std::cin >> matriz[i][j];
-            if(matriz[i][j] == "0") matriz[i][j] = " ";
-            else soma++;
+    for (int i = 0; i < qtdMaquinas; i++) {
+        for (int j = 0; j < qtdPartes; j++) {
+            std::cin >> matriz[i][j];         
+            if (matriz[i][j] == 1) soma++;
         }
     }
 
-    // cria os clusters iniciais
-    if(!clusters.empty()) clusters.clear();
-    num_clusters = 2;
-    int imid = (1 + num_maquinas) / 2;
-    int jmid = (1 + num_partes) / 2;
-    clusters.push_back(cluster(1, 1, imid, jmid));
-    clusters.push_back(cluster(imid + 1, jmid + 1, num_maquinas, num_partes));
-
-    // atualiza a soma total de 1's
-    num_1 = soma;
-
-    atualizaEficacia();
+    n1 = soma;
+    getFObj();
 }
 
-// troca de posicao as linhas x e y
-void solucao::trocarLinhas(int x, int y) {
-    for (int j = 0; j <= num_partes; j++) {
-        std::string tmp =  matriz[x][j];
-        matriz[x][j] = matriz[y][j];
-        matriz[y][j] = tmp;
+// une dois clusters escolhidos aleatoriamente
+// retorna 0 se não foi possível unir dois clusters
+// retorna 1 se foi possível
+int solucao::unionCluster() {
+    if (qtdClusters == 1) return 0;
+
+    // escolhe os clusters 
+    int x = intervalRand(1, qtdClusters);
+    int y = intervalRand(1, qtdClusters);
+    while (y == x) y = intervalRand(1, qtdClusters);
+    if (x < y) std::swap(x, y); 
+
+    // une as maquinas
+    for (int i = 0; i < qtdMaquinas; i++) {
+        if (maquinas[i] == x) {
+            maquinas[i] = y;
+            clusters[x - 1].first--;
+            clusters[y - 1].first++;
+        }
+
+        if (maquinas[i] > x) {
+            int z = maquinas[i];
+            clusters[z - 1].first--;
+            maquinas[i] = z - 1;
+            clusters[z - 2].first++;
+        }
+    }   
+
+    // une as partes 
+    for (int i = 0; i < qtdPartes; i++) {
+        if (partes[i] == x) {
+            partes[i] = y;
+            clusters[x - 1].second--;
+            clusters[y - 1].second++;
+        }
+
+        if (partes[i] > x) {
+            int z = partes[i];
+            clusters[z - 1].second--;
+            partes[i] = z - 1;
+            clusters[z - 2].second++;
+        }
     }
+
+    qtdClusters--;
+    return 1;
 }
 
-// troca de posicao as colunas x e y
-void solucao::trocarColunas(int x, int y) {
-    for (int i = 0; i <= num_maquinas; i++) {
-        std::string tmp =  matriz[i][x];
-        matriz[i][x] = matriz[i][y];
-        matriz[i][y] = tmp;
+// divide um cluster (escolhido aleatoriamente) pela metade
+// retona 0 se não foi possível dividir algum cluster
+// retorn 1 se foi possível
+int solucao::splitCluster() {
+    // armazena os clusters que podem ser divididos
+    std::vector<int> possivel;
+    for(int i = 0; i < qtdClusters; i++) {
+        if (clusters[i].first > 1 && clusters[i].second > 1) possivel.push_back(i + 1);
     }
+
+    if (possivel.empty()) return 0;
+
+    // escolhe o cluster a ser dividido
+    // c é o número do cluster
+    // novo é o número do cluster que vai surgir
+    int aux = intervalRand(0, possivel.size() - 1);
+    int c = possivel[aux];
+    int novo = qtdClusters + 1;
+
+    // divide as maquinas
+    int splits = (clusters[c - 1].first) / 2;
+    
+    for (int i = 0; i < qtdMaquinas; i++) {
+        if (maquinas[i] == c) {
+            clusters[c - 1].first--;
+            maquinas[i] = novo;
+            clusters[novo - 1].first++;
+            splits--;
+        }
+
+        if (splits == 0) break;
+    }
+
+    // divide as partes
+    splits = (clusters[c - 1].second) / 2;
+
+    for (int i = 0; i < qtdPartes; i++) {
+        if (partes[i] == c) {
+            clusters[c - 1].second--;
+            partes[i] = novo;
+            clusters[novo - 1].second++;
+            splits--;
+        }
+
+        if (splits == 0) break;
+    }
+
+    // adiciona o novo cluster à conta
+    qtdClusters++;
+    return 1;
 }
 
-void solucao::exibeMatriz() {
-    int posj; // para viajar pelo vetor de clusters por colunas
-    int posi = 0; // para viajat pelo vetor de cluster por linhas
+// move uma maquina (escolhida aleatoriamente) de cluster
+// retorna 0 se não foi possível mover alguma máquina
+// retorna 1 se foi possível
+int solucao::moverMaquina() {
+    if (qtdClusters == 1) return 0; // não faz sentido a operação
 
-    for (int i = 0; i <= num_maquinas; i++) {
-        posj = 0;
+    // armazena as posicoes das maquinas que podem ser movidas
+    std::vector<int> possivel;
+    for (int i = 0; i < qtdMaquinas; i++) {
+        if (clusters[maquinas[i] - 1].first > 1) possivel.push_back(i);
+    }
 
-        for (int j = 0; j <= num_partes; j++) {
-            std::cout << std::setw(5) << matriz[i][j];
+    if (possivel.empty()) return 0;
 
-            // imprime o limite vertical dos clusters
-            if (clusters[posj].jbr == j && j != num_partes) {
-                std::cout << std::setw(5) << "|";
+    // escolhe a maquina a ser movida
+    // pos é a sua posicao no vetor de maquinas
+    // c é o seu cluster inicial
+    int aux = intervalRand(0, possivel.size() - 1);
+    int pos = possivel[aux];
+    int c = maquinas[pos];
+    
+    // escolhe o novo cluster
+    int novo = intervalRand(1, qtdClusters);
+    while (novo == c) novo = intervalRand(1, qtdClusters);
+
+    clusters[c - 1].first--;
+    maquinas[pos] = novo;
+    clusters[novo - 1].first++;
+    return 1;
+}
+
+// move uma parte (escolhida aleatoriamente) de cluster
+// retorna 0 se não foi possível mover alguma parte
+// retorna 1 se foi possível
+int solucao::moverParte() {
+    if (qtdClusters == 1) return 0; // não faz sentido a operação
+
+    // armazena as posicoes das partes que podem ser movidas
+    std::vector<int> possivel;
+    for (int i = 0; i < qtdPartes; i++) {
+        if (clusters[partes[i] - 1].second > 1) possivel.push_back(i);
+    }
+
+    if (possivel.empty()) return 0;
+
+    // escolhe a parte a ser movida
+    // pos é a sua posicao no vetor de partes
+    // c é o seu cluster inicial
+    int aux = intervalRand(0, possivel.size() - 1);
+    int pos = possivel[aux];
+    int c = partes[pos];
+    
+    // escolhe o novo cluster
+    int novo = intervalRand(1, qtdClusters);
+    while (novo == c) novo = intervalRand(1, qtdClusters);
+
+    clusters[c - 1].second--;
+    partes[pos] = novo;
+    clusters[novo - 1].second++;
+    return 1;
+}
+
+// troca duas maquinas (escolhidas aleatoriamente) de cluster
+// retorna 0 se só há um cluster, ou seja, swap não altera a eficacia da solucao
+// rerorna 1 caso contrário
+int solucao::swapMaquinas() {
+    if (qtdClusters == 1) return 0;
+
+    // escolhe uma maquina aleatoriamente
+    // pos é a sua posicão no vetor de maquinas
+    // c é o seu cluster incial
+    int pos = intervalRand(0, qtdMaquinas - 1);
+    int c = maquinas[pos];
+
+    // armazena as posicoes das maquinas que podem ser trocadas
+    std::vector<int> possivel;
+    for (int i = 0; i < qtdMaquinas; i++) {
+        if (maquinas[i] != c) {
+            possivel.push_back(i);
+        }
+    }
+
+    // escolhe a posicao da troca aleatoriamente
+    int aux = intervalRand(0, possivel.size() - 1);
+    int posTroca = possivel[aux];
+
+    maquinas[pos] = maquinas[posTroca];
+    maquinas[posTroca] = c;
+
+    return 1;
+}
+
+// troca duas partes (escolhidas aleatoriamente) de cluster 
+// retorna 0 se só há um cluster, ou seja, swap não altera a eficacia da solucao
+// rerorna 1 caso contrário
+int solucao::swapPartes() {
+    if (qtdClusters == 1) return 0;
+
+    // escolhe uma parte aleatoriamente
+    // pos é a sua posicao no vetor de partes
+    // c é o seu cluster inicial
+    int pos = intervalRand(0, qtdPartes - 1);
+    int c = partes[pos];
+
+    // armazena as posicaoes das partes que podem ser trocadas
+    std::vector<int> possivel;
+    for (int i = 0; i < qtdPartes; i++) {
+        if (partes[i] != c) {
+            possivel.push_back(i);
+        }
+    }
+
+    // escolhe a posicao de troca aleatoriamente
+    int aux = intervalRand(0, possivel.size() - 1);
+    int posTroca = possivel[aux];
+
+    partes[pos] = partes[posTroca];
+    partes[posTroca] = c; 
+
+    return 1;
+}
+
+// Calcula a função objetivo
+// atualiza a eficacia
+float solucao::getFObj() {
+    // n1in é a qtd de 1's dentro de clusters
+    // n0in é a qtd de 0's dentro de clusters
+    int tmp_n1in = 0, tmp_n0in = 0;
+    for (int i = 0; i < qtdMaquinas; i++) {
+        for (int j = 0; j < qtdPartes; j++) {
+            if (maquinas[i] == partes[j]) {
+                // está dentro de um cluster
+                if (matriz[i][j] == 1) tmp_n1in++;
+                else tmp_n0in++;
+            }
+        }
+    }
+
+    n1out = n1 - tmp_n1in;
+    n0in = tmp_n0in;
+
+    eficacia = ((float)(n1 - n1out)) / (n1 + n0in);
+    return eficacia;
+}
+
+void solucao::exibeSolucao() {
+    // cria a matriz exibicao
+    std::vector<std::vector<std::string>> matrizExibicao(2 + qtdMaquinas + qtdClusters);
+    for (int k = 0; k < matrizExibicao.size(); k++) {
+        matrizExibicao[k].resize(2 + qtdPartes + qtdClusters, " ");
+    }
+
+    // estabelece as divisões iniciais
+    // |
+    // |
+    // |
+    for (int k = 2; k < matrizExibicao.size(); k++) {
+        matrizExibicao[k][1] = "|";
+    }
+    // -----
+    for (int k = 1; k < matrizExibicao[1].size(); k++) {
+        matrizExibicao[1][k] = "-";
+    }
+    
+
+    // calcula as sequências de maquinas e partes de acordo com os clusters
+    int posi = 2;
+    int posj = 2;
+    for (int k = 1; k <= qtdClusters; k++) {
+        // viaja pelas maquinas
+        for (int maq = 1; maq <= qtdMaquinas; maq++) {
+            if (maquinas[maq - 1] == k) {
+                matrizExibicao[posi][0] = std::to_string(maq);
+                posi++;
+            }
+        }
+        posi++;
+
+        // viaja pelas parte
+        for (int par = 1; par <= qtdPartes; par++) {
+            if (partes[par - 1] == k) {
+                matrizExibicao[0][posj] = std::to_string(par);
                 posj++;
             }
-
-            if(j == num_partes) std::cout << std::endl;
         }
-
-        // imprime o limite horizontal dos clusters
-        if (clusters[posi].ibr == i && i != num_maquinas) {
-            int len = 5 * (num_partes + clusters.size() - 1);
-
-            std::cout << std::setw(5) << "-"; // indentação do primeiro "-"
-            for (int k = 1; k <= len; k++) {
-                std::cout << "-";
-
-                if(k == len) std::cout << std::endl;
-            }
-
-            posi++;
-        }
-    }
-}
-
-// divide o cluster na posicao pos em dois clusters
-void solucao::splitCluster(int pos) {
-    int imid = (clusters[pos].itl + clusters[pos].ibr) / 2;
-    int jmid = (clusters[pos].jtl + clusters[pos].jbr) / 2;
-    
-    cluster add(imid + 1, jmid + 1, clusters[pos].ibr, clusters[pos].jbr);
-    clusters[pos].atualizaBR(imid, jmid);
-    
-    clusters.insert(clusters.begin() + pos + 1, add);
-    num_clusters++;
-}
-
-// une o cluste da posicao pos com a posicao pos + 1
-// ! cuidado para não passar pos = clusters.size() - 1
-void solucao::unionClusters(int pos) {
-    clusters[pos].ibr = clusters[pos + 1].ibr;
-    clusters[pos].jbr = clusters[pos + 1].jbr;
-
-    clusters.erase(clusters.begin() + pos + 1);
-    num_clusters--;
-}
-
-// atualiza as informações do cluster na posição pos
-// atualiza pior linha e pior coluna
-void solucao::atualizaCluster(int pos) {
-    int itl = clusters[pos].itl;
-    int ibr = clusters[pos].ibr;
-    int jtl = clusters[pos].jtl;
-    int jbr = clusters[pos].jbr;
-    
-    // atualiza pior linha
-    int maior_num_de_zeros = -1;
-    int pos_pior_linha;
-
-    for (int i = itl; i <= ibr; i++) {
-        int num_de_zeros = 0;
-    
-        for(int j = jtl; j <= jbr; j++) {
-            if (matriz[i][j] != "1") num_de_zeros++;
-        }
-
-        if (num_de_zeros > maior_num_de_zeros) {
-            maior_num_de_zeros = num_de_zeros;
-            pos_pior_linha = i;
-        }
+        posj++;
     }
 
-    clusters[pos].pior_linha = pos_pior_linha;
-    clusters[pos].num_zeros_pior_linha = maior_num_de_zeros;
+    // preenche a matriz exibicao
+    for (int i = 2; i < matrizExibicao.size(); i++) {
+        for (int j = 1; j < matrizExibicao[i].size(); j++) {
+            if (matrizExibicao[i][0] == " ") {
+                matrizExibicao[i][j] = "-";
+            } else if (matrizExibicao[0][j] == " ") {
+                matrizExibicao[i][j] = "|";
+            } else {
+                int maq = std::stoi(matrizExibicao[i][0]);
+                int par = std::stoi(matrizExibicao[0][j]);
 
-    // atualiza pior coluna
-    maior_num_de_zeros = -1;
-    int pos_pior_coluna;
-
-    for (int j = jtl; j <= jbr; j++) {
-        int num_de_zeros = 0;
-    
-        for(int i = itl; i <= ibr; i++) {
-            if (matriz[i][j] != "1") num_de_zeros++;
-        }
-
-        if (num_de_zeros > maior_num_de_zeros) {
-            maior_num_de_zeros = num_de_zeros;
-            pos_pior_coluna = j;
-        }
-    }
-
-    clusters[pos].pior_coluna = pos_pior_coluna;
-    clusters[pos].num_zeros_pior_coluna = maior_num_de_zeros;
-}
-
-void solucao::atualizaEficacia() {
-    int num_1_internos = 0; // numeros de 1's dentro de clusters
-    int num_elementos_internos = 0; // numero de elemntos dentro de clusters
-
-    for (int k = 0; k < num_clusters; k++) {
-        for (int i = clusters[k].itl; i <= clusters[k].ibr; i++) {
-             for (int j = clusters[k].jtl; j <= clusters[k].jbr; j++) {
-                if (matriz[i][j] == "1") num_1_internos++;
-                num_elementos_internos++;
+                if (matriz[maq - 1][par - 1] == 1) {
+                    matrizExibicao[i][j] = "1";
+                } else {
+                    matrizExibicao[i][j] = " ";
+                }
             }
         }
     }
 
-    num_1_externos = num_1 - num_1_internos;
-    num_0_internos = num_elementos_internos - num_1_internos;
-
-    eficacia = ((float) num_1 - num_1_externos) / (num_1 + num_0_internos); 
-}
-
-// retorna a posicao do cluster com maior numero de buracos
-// indiretamente atualiza:
-//          - o percentual de buracos em cada cluster
-//          - o numero de buracos em cada cluster
-int solucao::procuraPiorCluster() {
-    float maior_percentual = -1, pos;
-
-    for (int k = 0; k < num_clusters; k++) {
-        int soma_buracos = 0;
-        
-        for (int i = clusters[k].itl; i <= clusters[k].ibr; i++) {
-             for (int j = clusters[k].jtl; j <= clusters[k].jbr; j++) {
-                if (matriz[i][j] != "1") soma_buracos++;
-            }
+    // exibe
+    for (int i = 0; i < matrizExibicao.size(); i++) {
+        for (int j = 0; j < matrizExibicao[i].size(); j++) {
+            std::cout << std::setw(4) << matrizExibicao[i][j];
         }
-
-        clusters[k].num_buracos = soma_buracos;
-        int largura = clusters[k].jbr - clusters[k].jtl + 1;
-        int altura = clusters[k].ibr - clusters[k].itl + 1;
-        clusters[k].percentual_de_buracos = (float)(soma_buracos) / ((largura) * (altura)); // largura * altura = numero total de elementos no cluster 
-
-        if (clusters[k].percentual_de_buracos > maior_percentual) {
-            maior_percentual = clusters[k].percentual_de_buracos;
-            pos = k;
-        }
+        std::cout << std::endl;
     }
 
-    return pos; 
 }

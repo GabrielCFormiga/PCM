@@ -17,23 +17,23 @@ int main() {
     
     // começo do SA
     solucao sMelhor = s;
-    float alpha = 0.98; // coeficiente de resfriamento
-    int iterT = 0, T = 1000; // número de iterações na temperatura T 
-    int SAmax = 200;
+    float alpha = 0.99; // coeficiente de resfriamento
+    int iterT = 0, T = 4000; // número de iterações na temperatura T 
+    int SAmax = 1000;
 
     while (T > 0) {
-        cout << "T = " << T << endl;
+        //cout << "T = " << T << endl;
         while (iterT < SAmax) {
             iterT++;
 
-            cout << "\titerT = " << iterT << endl; 
+            //cout << "\titerT = " << iterT << endl; 
 
             int op = intervalRand(0, 100);
             solucao sLinha = s;
 
             if (op <= 10) {
                 // union
-                cout << "\tpassou union" << endl;
+                //cout << "\tpassou union" << endl;
                 if (sLinha.unionCluster() == 0) {
                     // caso em que só há um cluster
                     // ou seja, é preciso usar split para alterar a eficacia
@@ -41,7 +41,7 @@ int main() {
                 }
             } else if (op <= 20) {
                 // split
-                cout << "\tpassou split" << endl;
+                //cout << "\tpassou split" << endl;
                 if (sLinha.splitCluster() == 0) {
                     // caso em que o número de clusters é máximo
                     // mover uma parte ou uma máquina é impossível
@@ -66,9 +66,9 @@ int main() {
                         }
                     }
                 }
-            } else if (op <= 40) {
+            } else if (op <= 45) {
                 // moverMaquina
-                cout << "\tpassou mover Maquina" << endl;
+                //cout << "\tpassou mover Maquina" << endl;
                 if (sLinha.moverMaquina() == 0) {
                     // caso em que o número de cluster é máximo ou 1
                     // caso seja 1 a operação não alteraria a eficácia
@@ -87,9 +87,9 @@ int main() {
                         sLinha.moverParte();
                     }
                 }
-            } else if (op <= 60) {
+            } else if (op <= 70) {
                 // moverParte
-                cout << "\tpassou mover Parte" << endl;
+                //cout << "\tpassou mover Parte" << endl;
                 if (sLinha.moverParte() == 0) {
                     // caso em que o número de clusters é máximo ou 1
                     // caso seja 1 a operação não alteraria a eficácia
@@ -108,9 +108,9 @@ int main() {
                         sLinha.moverMaquina();
                     }
                 }
-            } else if (op <= 80) {
+            } else if (op <= 85) {
                 // swapMaquinas
-                cout << "\tpassou swap Maquinas" << endl;
+                //cout << "\tpassou swap Maquinas" << endl;
                 if (sLinha.swapMaquinas() == 0) {
                     // caso em que só há um cluster
                     // ou seja, é preciso usar split para alterar a eficacia
@@ -118,7 +118,7 @@ int main() {
                 }
             } else {
                 // swapParte
-                cout << "\tpassou swap partes" << endl;
+                //cout << "\tpassou swap partes" << endl;
                 if (sLinha.swapPartes() == 0) {
                     // caso em que só há um cluster
                     // ou seja, é preciso usar split para alterar a eficacia
