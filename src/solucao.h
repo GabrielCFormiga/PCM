@@ -39,6 +39,8 @@ class solucao {
         int moverParte();
         int swapMaquinas();
         int swapPartes();
+        void perturbaMaquinas();
+        void perturbaPartes();
         float getFObj();
         void exibeSolucao();
 };

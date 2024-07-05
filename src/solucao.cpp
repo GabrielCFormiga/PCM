@@ -298,6 +298,70 @@ int solucao::swapPartes() {
     return 1;
 }
 
+// faz uma perturbação linear de máquinas
+// move uma máquina do cluster i para o cluster i + 1 até que o cluster inicial receba uma máquina do último cluster 
+void solucao::perturbaMaquinas() {
+    // cria um vetor com as máquinas candidas de cada cluster
+    // candidatas[i - 1] guarda as máquinas do cluster i
+    std::vector<std::vector<int>> candidatas(qtdClusters);
+
+    // viaja pelas máquinas olhando seus clusters para montar o vetor de candidatas 
+    for (int i = 1; i <= qtdMaquinas; i++) {
+        int c = maquinas[i - 1];
+        candidatas[c - 1].push_back(i);
+    }
+
+    // para cada cluster move uma de suas máquinas para o cluster seguinte
+    for (int c = 1; c <= qtdClusters; c++) {
+        // escolhe uma máquina aleatória desse cluster
+        int pos = intervalRand(0, candidatas[c - 1].size() - 1);
+        int maq = candidatas[c - 1][pos];
+
+        if (c == qtdClusters) {
+            // move a máquina do último cluster para o primeiro
+            maquinas[maq - 1] = 1; 
+        } else {
+            // move a máquina para o cluster seguinte
+            maquinas[maq - 1] = c + 1;
+        }
+    }
+
+    // note que não é preciso alterar cluster.first pois cada cluster perde e ganha uma máquina
+    // ou seja, cluster.first nao muda
+}
+
+// faz uma perturbação linear de partes
+// move uma parte do cluster i para o cluster i + 1 até que o cluster inicial receba uma parte do último cluster 
+void solucao::perturbaPartes() {
+    // cria um vetor com as partes candidas de cada cluster
+    // candidatas[i - 1] guarda as partes do cluster i
+    std::vector<std::vector<int>> candidatas(qtdClusters);
+
+    // viaja pelas partes olhando seus clusters para montar o vetor de candidatas 
+    for (int i = 1; i <= qtdPartes; i++) {
+        int c = partes[i - 1];
+        candidatas[c - 1].push_back(i);
+    }
+
+    // para cada cluster move uma de suas partes para o cluster seguinte
+    for (int c = 1; c <= qtdClusters; c++) {
+        // escolhe uma parte aleatória desse cluster
+        int pos = intervalRand(0, candidatas[c - 1].size() - 1);
+        int par = candidatas[c - 1][pos];
+
+        if (c == qtdClusters) {
+            // move a parte do último cluster para o primeiro
+            partes[par - 1] = 1; 
+        } else {
+            // move a parte para o cluster seguinte
+            partes[par - 1] = c + 1;
+        }
+    }
+
+    // note que não é preciso alterar cluster.second pois cada cluster perde e ganha uma parte
+    // ou seja, cluster.second nao muda
+}
+
 // Calcula a função objetivo
 // atualiza a eficacia
 float solucao::getFObj() {
