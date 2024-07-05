@@ -17,14 +17,16 @@ int main() {
     
     // começo do SA
     solucao sMelhor = s;
-    float alpha = 0.99; // coeficiente de resfriamento
+    float alpha = 0.98; // coeficiente de resfriamento
     int iterT = 0, T = 4000; // número de iterações na temperatura T 
-    int SAmax = 1000;
+    int SAmax = 400;
+    int contador = 0;
 
     while (T > 0) {
         //cout << "T = " << T << endl;
         while (iterT < SAmax) {
             iterT++;
+            contador++;
 
             //cout << "\titerT = " << iterT << endl; 
 
@@ -128,7 +130,17 @@ int main() {
 
             float delta = sLinha.getFObj() - s.eficacia;
             
-            if (delta > 0) {
+
+            if (contador > 2 * SAmax) {
+                contador = 0;
+                T = T * 1.1;
+                int aux = intervalRand(0, 1);
+
+                if (aux == 0) s.perturbaMaquinas();
+                else s.perturbaPartes();
+            } else if (delta > 0) {
+                contador = 0;
+
                 s = sLinha;
                 if (s.eficacia > sMelhor.eficacia) {
                     sMelhor = s;
@@ -136,7 +148,10 @@ int main() {
             } else {
                 float x = randomFloat();
                 float aux = powf(e, -delta / T);
-                if (x < aux) s = sLinha;
+                if (x < aux) {
+                    s = sLinha;
+                    contador = 0;
+                }
             }
         }
         
