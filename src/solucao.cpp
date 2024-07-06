@@ -13,7 +13,68 @@ solucao::~solucao() {
 
 }
 
+// inicializa o objeto a partir de uma matriz
+// cria os clusters iniciais
+// qtdClusters = 2
+// também faz o papel de setMatriz: calcula n1 e a eficacia inicial
+solucao::solucao(std::vector<std::vector<int>> &vec) {
+    qtdMaquinas = vec.size();
+    qtdPartes = vec[0].size();
+
+    matriz.resize(qtdMaquinas);
+    for (int i = 0; i < qtdMaquinas; i++) {
+        matriz[i].resize(qtdPartes);
+    }
+
+    maquinas.resize(qtdMaquinas);
+    partes.resize(qtdPartes);
+
+    clusters.resize(std::min(qtdMaquinas, qtdPartes));
+
+    // gera os clusters iniciais
+    qtdClusters = 2;
+
+    for (int i = 0; i < qtdMaquinas; i++) {
+        if (i < qtdMaquinas / 2) {
+            // adiciona a máquina ao cluster 1
+            maquinas[i] = 1;
+            clusters[0].first++;
+        } else {
+            // adiciona a máquina ao cluster 2
+            maquinas[i] = 2;
+            clusters[1].first++;
+        }
+    }
+
+    for (int i = 0; i < qtdPartes; i++) {
+        if (i < qtdPartes / 2) {
+            // adiciona a parte ao cluster 1
+            partes[i] = 1;
+            clusters[0].second++;
+        } else {
+            // adiciona a parte ao cluster 2
+            partes[i] = 2;
+            clusters[1].second++;
+        }
+    }
+
+
+    // faz o papel de setMatriz()
+    int soma = 0;
+
+    for (int i = 0; i < qtdMaquinas; i++) {
+        for (int j = 0; j < qtdPartes; j++) {
+            matriz[i][j] = vec[i][j];         
+            if (matriz[i][j] == 1) soma++;
+        }
+    }
+
+    n1 = soma;
+    getFObj();
+}
+
 // inicializa o objeto de acordo com as dimensões da matriz de entrada
+// cria os clusters iniciais
 // qtdClusters = 2
 solucao::solucao(int qtdM, int qtdP) {
     qtdMaquinas = qtdM;

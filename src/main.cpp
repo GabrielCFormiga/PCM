@@ -2,24 +2,30 @@
 #include <math.h>
 #include "solucao.h"
 #include "snippets.h"
+#include "leitor.h"
 
 using namespace std;
 
 const float e = 2.7182818284590;
 
 int main() {
-    // define a matriz do problema
+    /* faz a leitura da matriz do problema manulmente
     int n, m;
     cin >> n >> m;
 
     solucao s(n, m);
     s.setMatriz();
-    
+    */
+
+    // faz a leitura da matriz do problema pelo leitor
+    leitor l;
+    solucao s(l.matriz);
+
     // começo do SA
     solucao sMelhor = s;
     float alpha = 0.98; // coeficiente de resfriamento
-    int iterT = 0, T = 4000; // número de iterações na temperatura T 
-    int SAmax = 400;
+    int iterT = 0, T = 1500; // número de iterações na temperatura T 
+    int SAmax = 500;
     int contador = 0;
 
     while (T > 0) {
@@ -50,7 +56,7 @@ int main() {
                     // se a matriz não for quadrada uma das operações de mover é possível
                     // escolha entre swapParte, swapMaquina ou unionCluster
                     int opNovo = intervalRand(0, 60);
-                    if (n != m) opNovo = intervalRand(0, 80); // caso em que uma das operações de mover é possível
+                    if (s.qtdMaquinas != s.qtdPartes) opNovo = intervalRand(0, 80); // caso em que uma das operações de mover é possível
 
                     if (opNovo <= 20) {
                         sLinha.unionCluster();
@@ -59,7 +65,7 @@ int main() {
                     } else if (opNovo <= 60) {
                         sLinha.swapMaquinas();
                     } else {
-                        if (m > n) {
+                        if (s.qtdPartes > s.qtdMaquinas) {
                             // o número de partes é maior do que o de máquinas
                             sLinha.moverParte();
                         } else {
@@ -77,7 +83,7 @@ int main() {
                     // se qtdMaquinas == qtdPartes, então mover uma parte também é impossível
                     // escolha entre swapParte, swapMaquina ou unionCluster
                     int opNovo = intervalRand(0, 60);
-                    if (n != m) opNovo = intervalRand(0, 80); // caso em que se pode mover uma parte
+                    if (s.qtdMaquinas != s.qtdPartes) opNovo = intervalRand(0, 80); // caso em que se pode mover uma parte
 
                     if (opNovo <= 20) {
                         sLinha.unionCluster();
@@ -98,7 +104,7 @@ int main() {
                     // se qtdPartes == qtdMaquinas, então mover uma maquina também é impossível
                     // escolha entre swapParte, swapMaquina ou unionCluster
                     int opNovo = intervalRand(0, 60);
-                    if (n != m) opNovo = intervalRand(0, 80); // caso em que se pode mover uma maquina
+                    if (s.qtdMaquinas != s.qtdPartes) opNovo = intervalRand(0, 80); // caso em que se pode mover uma maquina
 
                     if (opNovo <= 20) {
                         sLinha.unionCluster();
@@ -150,7 +156,6 @@ int main() {
                 float aux = powf(e, -delta / T);
                 if (x < aux) {
                     s = sLinha;
-                    contador = 0;
                 }
             }
         }
@@ -159,7 +164,8 @@ int main() {
         iterT = 0;
     }
 
-    cout << sMelhor.eficacia << endl;
+    cout << l.identificador << endl;
+    cout << "eficacia = " << sMelhor.eficacia << endl;
     cout << "n1 = " << sMelhor.n1 << endl;
     cout << "n1out = " << sMelhor.n1out << endl;
     cout << "n0in = " << sMelhor.n0in << endl;

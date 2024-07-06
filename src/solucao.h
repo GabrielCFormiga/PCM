@@ -29,6 +29,7 @@ class solucao {
     // construtores
         solucao();
         ~solucao();
+        solucao(std::vector<std::vector<int>> &vec);
         solucao(int qtdM, int qtdP);
 
     // métodos
