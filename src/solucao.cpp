@@ -359,6 +359,109 @@ int solucao::swapPartes() {
     return 1;
 }
 
+// escolhe dois clusters aleatoriamente
+// troca as piores máquinas de cada cluster
+// retorna 0 se só há um cluster, ou seja, swap não altera a eficácia da solução
+// retorn 1 caso contrário
+int solucao::swapPioresMaquinas() {
+    if (qtdClusters == 1) return 0;
+
+    // escolhe os clusters
+    int c1 = intervalRand(1, qtdClusters);
+    int c2 = intervalRand(1, qtdClusters);
+    while (c2 == c1) c2 = intervalRand(1, qtdClusters);
+
+    // escolhe as piores máquinas
+    // mi é a pior máquina
+    // somai é a sua soma de 1's
+    // note que a soma de 1´s é no máximo qtdPartes
+    int m1, soma1 = qtdPartes + 1; 
+    int m2, soma2 = qtdPartes + 1;
+
+    for (int i = 1; i <= qtdMaquinas; i++) {
+        // evita iterar por máquinas que não sejam de c1 ou c2
+        if (maquinas[i - 1] != c1 && maquinas[i - 1] != c2) continue;
+
+        int soma = 0;
+        for (int j = 1; j <= qtdPartes; j++) {
+            if (maquinas[i - 1] == partes[j - 1]) {
+                soma += matriz[i - 1][j - 1];
+            }
+        }
+
+        if (maquinas[i - 1] == c1) {
+            // máquina do cluster 1
+            if (soma < soma1) {
+                soma1 = soma;
+                m1 = i;
+            }
+
+        } else {
+            // máquina do cluster 2
+            if (soma < soma2) {
+                soma2 = soma;
+                m2 = i;
+            }
+        }
+    }
+
+    // faz a troca
+    maquinas[m1 - 1] = c2;
+    maquinas[m2 - 1] = c1;
+}
+
+// escolhe dois clusters aleatoriamente
+// troca as piores partes de cada cluster
+// retorna 0 se só há um cluster, ou seja, swap não altera a eficácia da solução
+// retorn 1 caso contrário
+int solucao::swapPioresPartes() {
+    if (qtdClusters == 1) return 0;
+
+    // escolhe os clusters
+    int c1 = intervalRand(1, qtdClusters);
+    int c2 = intervalRand(1, qtdClusters);
+    while (c2 == c1) c2 = intervalRand(1, qtdClusters);
+
+    // escolhe as piores partes
+    // pi é a pior parte
+    // somai é a sua soma de 1´s
+    // note que a soma de 1´s é no máximo qtdMaquinas
+    int p1, soma1 = qtdMaquinas + 1;
+    int p2, soma2 = qtdMaquinas + 1;
+
+    for (int j = 1; j <= qtdPartes; j++) {
+        // evita iterar por partes que não sejam de c1 ou c2
+        if (partes[j - 1] != c1 && partes[j - 1] != c2) continue;
+
+        int soma = 0;
+        for (int i = 1; i <= qtdMaquinas; i++) {
+            if (partes[j - 1] == maquinas[i - 1]) {
+                soma += matriz[i - 1][j - 1];
+            }
+        }
+
+        if (partes[j - 1] == c1) {
+            // parte do cluster 1
+            if (soma < soma1) {
+                soma1 = soma;
+                p1 = j;
+            }
+        } else {
+            // parte do cluster 2
+            if (soma < soma2) {
+                soma2 = soma;
+                p2 = j;
+            }
+        }
+    }
+
+    // faz a troca
+    partes[p1 - 1] = c2;
+    partes[p2 - 1] = c1;
+
+}
+
+
 // faz uma perturbação linear de máquinas
 // move uma máquina do cluster i para o cluster i + 1 até que o cluster inicial receba uma máquina do último cluster 
 void solucao::perturbaMaquinas() {

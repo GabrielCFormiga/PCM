@@ -34,14 +34,23 @@ class solucao {
 
     // métodos
         void setMatriz();
+
+        // geração de vizinhanças de forma aleatótia
         int unionCluster();
         int splitCluster();
         int moverMaquina();
         int moverParte();
         int swapMaquinas();
         int swapPartes();
+
+        // geração eficiente de vizinhanças
+        int swapPioresMaquinas();
+        int swapPioresPartes();
+
+        // métodos de perturbação
         void perturbaMaquinas();
         void perturbaPartes();
+        
         float getFObj();
         void exibeSolucao();
 };
