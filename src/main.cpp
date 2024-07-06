@@ -39,6 +39,10 @@ int main() {
             int op = intervalRand(0, 100);
             solucao sLinha = s;
 
+            // 10% union, 10% split
+            // 25% moverMaquina, 25% moverParte
+            // 10% swapPioresMaquinas, 10% swapPioresPartes
+            // 5% swapMaquina, 5% swapParte
             if (op <= 10) {
                 // union
                 //cout << "\tpassou union" << endl;
@@ -116,7 +120,21 @@ int main() {
                         sLinha.moverMaquina();
                     }
                 }
-            } else if (op <= 85) {
+            } else if (op <= 80) {
+                // swapPioresMaquinas
+                if (sLinha.swapPioresMaquinas() == 0) {
+                    // caso em que só há um cluster
+                    // ou seja, é preciso usar split para alterar a eficacia
+                    sLinha.splitCluster();
+                }
+            } else if (op <= 90) {
+                // swapPioresPartes
+                if (sLinha.swapPioresPartes() == 0) {
+                    // caso em que só há um cluster
+                    // ou seja, é preciso usar split para alterar a eficacia
+                    sLinha.splitCluster();
+                }
+            } else if (op <= 95) {
                 // swapMaquinas
                 //cout << "\tpassou swap Maquinas" << endl;
                 if (sLinha.swapMaquinas() == 0) {
