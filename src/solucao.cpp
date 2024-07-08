@@ -359,6 +359,108 @@ int solucao::swapPartes() {
     return 1;
 }
 
+// move a pior máquina de um cluster (escolhido aleatoriamente) para outro
+// retorna 0 se não foi possível mover alguma máquina
+// retorna 1 se foi possível 
+int solucao::moverPiorMaquina() {
+    if (qtdClusters == 1) return 0; // não faz sentido a operação
+
+    // armazena os cluster candidatos a terem uma máquina movida
+    std::vector<int> candidatos;
+    for (int i = 1; i <= qtdClusters; i++) {
+        if (clusters[i - 1].first > 1) candidatos.push_back(i);
+    }
+
+    if (candidatos.empty()) return 0;
+    
+    // escolhe os clusters
+    int pos1 = intervalRand(0, candidatos.size() - 1);
+    int c1 = candidatos[pos1];
+    int c2 = intervalRand(1, qtdClusters);
+    while (c2 == c1) c2 = intervalRand(1, qtdClusters);
+
+    // escolhe a pior máquina de c1
+    // m1 é a sua pior máquina
+    // soma1 é a sua soma de 1´s
+    // note que a soma de 1´s é no máximo qtdPartes
+    int m1, soma1 = qtdPartes + 1;
+
+    for (int i = 1; i <= qtdMaquinas; i++) {
+        // evita iterar por máquinas que não sejam de c1
+        if (maquinas[i - 1] != c1) continue;
+
+        int soma = 0;
+        for (int j = 1; j <= qtdPartes; j++ ) {
+            if (maquinas[i - 1] == partes[j - 1]) {
+                soma += matriz[i - 1][j - 1];
+            }
+        }
+
+        if (soma < soma1) {
+            soma1 = soma;
+            m1 = i;
+        }
+    }
+
+    // move a máquina
+    maquinas[m1 - 1] = c2;
+    clusters[c1 - 1].first--;
+    clusters[c2 - 1].first++;
+
+    return 1;
+}
+
+// move a pior parte de um cluster (escolhido aleatoriamente) para outro
+// retorna 0 se não foi possível mover alguma parte
+// retorna 1 se foi possível 
+int solucao::moverPiorParte() {
+    if (qtdClusters == 1) return 0; // não faz sentido a operação
+
+    // armazena os cluster candidatos a terem uma parte movida
+    std::vector<int> candidatos;
+    for (int i = 1; i <= qtdClusters; i++) {
+        if (clusters[i - 1].second > 1) candidatos.push_back(i);
+    }
+
+    if (candidatos.empty()) return 0;
+    
+    // escolhe os clusters
+    int pos1 = intervalRand(0, candidatos.size() - 1);
+    int c1 = candidatos[pos1];
+    int c2 = intervalRand(1, qtdClusters);
+    while (c2 == c1) c2 = intervalRand(1, qtdClusters);
+
+    // escolhe a pior parte de c1
+    // p1 é a sua pior parte
+    // soma1 é a sua soma de 1´s
+    // note que a soma de 1´s é no máximo qtdMáquinas
+    int p1, soma1 = qtdMaquinas + 1;
+
+    for (int j = 1; j <= qtdPartes; j++) {
+        // evita iterar por partes que não sejam de c1
+        if (partes[j - 1] != c1) continue;
+
+        int soma = 0;
+        for (int i = 1; i <= qtdMaquinas; i++ ) {
+            if (maquinas[i - 1] == partes[j - 1]) {
+                soma += matriz[i - 1][j - 1];
+            }
+        }
+
+        if (soma < soma1) {
+            soma1 = soma;
+            p1 = j;
+        }
+    }
+
+    // move a parte
+    partes[p1 - 1] = c2;
+    clusters[c1 - 1].second--;
+    clusters[c2 - 1].second++;
+
+    return 1;
+}
+
 // escolhe dois clusters aleatoriamente
 // troca as piores máquinas de cada cluster
 // retorna 0 se só há um cluster, ou seja, swap não altera a eficácia da solução

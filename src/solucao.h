@@ -44,6 +44,8 @@ class solucao {
         int swapPartes();
 
         // geração eficiente de vizinhanças
+        int moverPiorMaquina();
+        int moverPiorParte();
         int swapPioresMaquinas();
         int swapPioresPartes();
 
