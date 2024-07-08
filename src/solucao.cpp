@@ -510,6 +510,8 @@ int solucao::swapPioresMaquinas() {
     // faz a troca
     maquinas[m1 - 1] = c2;
     maquinas[m2 - 1] = c1;
+
+    return 1;
 }
 
 // escolhe dois clusters aleatoriamente
@@ -561,6 +563,7 @@ int solucao::swapPioresPartes() {
     partes[p1 - 1] = c2;
     partes[p2 - 1] = c1;
 
+    return 1;
 }
 
 
