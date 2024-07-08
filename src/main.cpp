@@ -40,7 +40,8 @@ int main() {
             solucao sLinha = s;
 
             // 10% union, 10% split
-            // 25% moverMaquina, 25% moverParte
+            // 20% moverPiorMaquina, 20% moverPiorParte
+            // 5% moverMaquina, 5%moverParte
             // 10% swapPioresMaquinas, 10% swapPioresPartes
             // 5% swapMaquina, 5% swapParte
             if (op <= 10) {
@@ -78,19 +79,65 @@ int main() {
                         }
                     }
                 }
-            } else if (op <= 45) {
+            } else if (op <= 40) {
+                // moverPiorMaquina
+                if (sLinha.moverPiorMaquina() == 0) {
+                    // caso em que o número de cluster é máximo ou 1
+                    // caso seja 1 a operação não alteraria a eficácia
+                    // se qtdMaquinas == qtdPartes, então mover uma parte também é impossível
+                    // escolha entre swapParte, swapMaquina, splitCcluster(caso qtdClusters = 1) ou unionClusters(caso qtdCluster = max)
+                    int opNovo = intervalRand(0, 60);
+                    if (s.qtdMaquinas != s.qtdPartes) opNovo = intervalRand(0, 80); // caso em que se pode mover uma parte
+
+                    if (opNovo <= 20 && sLinha.qtdClusters > 1) {
+                        sLinha.unionCluster();
+                    } else if (opNovo <= 20) {
+                        sLinha.splitCluster();
+                    } else if (opNovo <= 40) {
+                        sLinha.swapPartes();
+                    } else if (opNovo <= 60) {
+                        sLinha.swapMaquinas();
+                    } else {
+                        sLinha.moverParte();
+                    }
+                }
+            } else if (op <= 60) {
+                // moverPiorParte
+                if (sLinha.moverParte() == 0) {
+                    // caso em que o número de clusters é máximo ou 1
+                    // caso seja 1 a operação não alteraria a eficácia
+                    // se qtdPartes == qtdMaquinas, então mover uma maquina também é impossível
+                    // escolha entre swapParte, swapMaquina, splitCcluster(caso qtdClusters = 1) ou unionClusters(caso qtdCluster = max)
+                    int opNovo = intervalRand(0, 60);
+                    if (s.qtdMaquinas != s.qtdPartes) opNovo = intervalRand(0, 80); // caso em que se pode mover uma maquina
+
+                    if (opNovo <= 20 && sLinha.qtdClusters > 1) {
+                        sLinha.unionCluster();
+                    } else if (opNovo <= 20) {
+                        sLinha.splitCluster();
+                    } else if (opNovo <= 40) {
+                        sLinha.swapPartes();
+                    } else if (opNovo <= 60) {
+                        sLinha.swapMaquinas();
+                    } else {
+                        sLinha.moverMaquina();
+                    }
+                }
+            } else if (op <= 65) {
                 // moverMaquina
                 //cout << "\tpassou mover Maquina" << endl;
                 if (sLinha.moverMaquina() == 0) {
                     // caso em que o número de cluster é máximo ou 1
                     // caso seja 1 a operação não alteraria a eficácia
                     // se qtdMaquinas == qtdPartes, então mover uma parte também é impossível
-                    // escolha entre swapParte, swapMaquina ou unionCluster
+                    // escolha entre swapParte, swapMaquina, splitCcluster(caso qtdClusters = 1) ou unionClusters(caso qtdCluster = max)
                     int opNovo = intervalRand(0, 60);
                     if (s.qtdMaquinas != s.qtdPartes) opNovo = intervalRand(0, 80); // caso em que se pode mover uma parte
 
-                    if (opNovo <= 20) {
+                    if (opNovo <= 20 && sLinha.qtdClusters > 1) {
                         sLinha.unionCluster();
+                    } else if (opNovo <= 20) {
+                        sLinha.splitCluster();
                     } else if (opNovo <= 40) {
                         sLinha.swapPartes();
                     } else if (opNovo <= 60) {
@@ -106,12 +153,14 @@ int main() {
                     // caso em que o número de clusters é máximo ou 1
                     // caso seja 1 a operação não alteraria a eficácia
                     // se qtdPartes == qtdMaquinas, então mover uma maquina também é impossível
-                    // escolha entre swapParte, swapMaquina ou unionCluster
+                    // escolha entre swapParte, swapMaquina, splitCcluster(caso qtdClusters = 1) ou unionClusters(caso qtdCluster = max)
                     int opNovo = intervalRand(0, 60);
                     if (s.qtdMaquinas != s.qtdPartes) opNovo = intervalRand(0, 80); // caso em que se pode mover uma maquina
 
-                    if (opNovo <= 20) {
+                    if (opNovo <= 20 && sLinha.qtdClusters > 1) {
                         sLinha.unionCluster();
+                    } else if (opNovo <= 20) {
+                        sLinha.splitCluster();
                     } else if (opNovo <= 40) {
                         sLinha.swapPartes();
                     } else if (opNovo <= 60) {
