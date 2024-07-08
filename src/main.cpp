@@ -24,11 +24,12 @@ int main() {
     // começo do SA
     solucao sMelhor = s;
     float alpha = 0.98; // coeficiente de resfriamento
-    int iterT = 0, T = 1500; // número de iterações na temperatura T 
+    float T = 4000;
+    int iterT = 0; // número de iterações na temperatura T 
     int SAmax = 500;
     int contador = 0;
 
-    while (T > 0) {
+    while (T > 0.00001) {
         //cout << "T = " << T << endl;
         while (iterT < SAmax) {
             iterT++;
@@ -41,7 +42,7 @@ int main() {
 
             // 10% union, 10% split
             // 20% moverPiorMaquina, 20% moverPiorParte
-            // 5% moverMaquina, 5%moverParte
+            // 5% moverMaquina, 5% moverParte
             // 10% swapPioresMaquinas, 10% swapPioresPartes
             // 5% swapMaquina, 5% swapParte
             if (op <= 10) {
@@ -206,11 +207,23 @@ int main() {
 
             if (contador > 2 * SAmax) {
                 contador = 0;
-                T = T * 1.1;
-                int aux = intervalRand(0, 1);
+                T = T * 1.15;
 
-                if (aux == 0) s.perturbaMaquinas();
-                else s.perturbaPartes();
+                // perturbação
+                if (s.qtdClusters < min(s.qtdMaquinas, s.qtdPartes)) {
+                    s.splitCluster();
+                    s.unionCluster();
+                } else {
+                    s.unionCluster();
+                    s.splitCluster();
+                }
+                
+                for (int i = 0; i < 4; i++) {
+                    int aux = intervalRand(0, 1);
+
+                    if (aux == 0) s.perturbaMaquinas();
+                    else s.perturbaPartes();
+                }
             } else if (delta > 0) {
                 contador = 0;
 
