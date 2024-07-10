@@ -30,6 +30,7 @@ solucao::solucao(std::vector<std::vector<int>> &vec) {
     partes.resize(qtdPartes);
 
     clusters.resize(std::min(qtdMaquinas, qtdPartes));
+    eficaciaClusters.resize(std::min(qtdMaquinas, qtdPartes));
 
     // gera os clusters iniciais
     qtdClusters = 2;
@@ -91,6 +92,7 @@ solucao::solucao(int qtdM, int qtdP) {
     // note que o número máximo de clusters é min(qtdM, qtdP)
     // contudo, o vetor é usado de i = 0 até i = qtdClusters - 1
     clusters.resize(std::min(qtdM, qtdP));
+    eficaciaClusters.resize(std::min(qtdM, qtdP));
 
     // gera os cluters iniciais
     qtdClusters = 2;
@@ -355,6 +357,134 @@ int solucao::swapPartes() {
 
     partes[pos] = partes[posTroca];
     partes[posTroca] = c; 
+
+    return 1;
+}
+
+// move a pior máquina do pior cluster para o cluster mais compatível
+// retorna 0 se não foi possível mover alguma máquina
+// retorna 1 se foi possível 
+int solucao::moverPiorMaquina2() {
+    atualizaEficaciaClusters();
+
+    // procura o pior cluster que pode ter uma máquina movida
+    int piorC = -1;
+    float minEficacia = 1.1;
+    for (int c = 1; c <= qtdClusters; c++) {
+        if (clusters[c - 1].first > 1 && eficaciaClusters[c - 1] < minEficacia) {
+            minEficacia = eficaciaClusters[c - 1];
+            piorC = c;
+        }       
+    }
+
+    if (piorC == -1) return 0; // não há cluster que possa ter uma máquina movida
+
+    // seleciona a pior máquina 
+    int mPior, piorSoma = qtdPartes + 1;
+
+    for (int m = 1; m <= qtdMaquinas; m++) {
+        if (maquinas[m - 1] == piorC) {
+            int soma = 0;
+
+            for (int p = 1; p <= qtdPartes; p++) {
+                if (partes[p - 1] == piorC) {
+                    soma += matriz[m - 1][p - 1];
+                }
+            }
+
+            if (soma < piorSoma) {
+                piorSoma = soma;
+                mPior = m;
+            }
+        }
+    }
+
+    // procura o cluster com melhor compatibilidade
+    // no caso crítico esse cluster é o próptio piorC
+    int melhorC, melhorSoma = -1;
+    for (int c = 1; c <= qtdClusters; c++) {
+        int soma = 0;
+        
+        for (int p = 1; p <= qtdPartes; p++) {
+            if (partes[p - 1] == c) {
+                soma += matriz[mPior - 1][p - 1];
+            }
+        }
+
+        if (soma > melhorSoma) {
+            melhorSoma = soma;
+            melhorC = c;
+        }
+    }
+    
+    // move a máquina
+    clusters[piorC - 1].first--;
+    maquinas[mPior - 1] = melhorC;
+    clusters[melhorC - 1].first++;
+
+    return 1;
+}
+
+// move a pior parte do pior cluster para o cluster mais compatível
+// retorna 0 se não foi possível mover alguma parte
+// retorna 1 se foi possível 
+int solucao::moverPiorParte2() {
+    atualizaEficaciaClusters();
+
+    // procura o pior cluster que pode ter uma parte movida
+    int piorC = -1;
+    float minEficacia = 1.1;
+    for (int c = 1; c <= qtdClusters; c++) {
+        if (clusters[c - 1].second > 1 && eficaciaClusters[c - 1] < minEficacia) {
+            minEficacia = eficaciaClusters[c - 1];
+            piorC = c;
+        }       
+    }
+
+    if (piorC == -1) return 0; // não há cluster que possa ter uma parte movida
+
+    // seleciona a pior parte 
+    int pPior, piorSoma = qtdMaquinas + 1;
+
+    for (int p = 1; p <= qtdPartes; p++) {
+        if (partes[p - 1] == piorC) {
+            int soma = 0;
+
+            for (int m = 1; m <= qtdMaquinas; m++) {
+                if (maquinas[m - 1] == piorC) {
+                    soma += matriz[m - 1][p - 1];
+                }
+            }
+
+            if (soma < piorSoma) {
+                piorSoma = soma;
+                pPior = p;
+            }
+        }
+    }
+
+    // procura o cluster com melhor compatibilidade
+    // no caso crítico esse cluster é o próptio piorC
+    int melhorC, melhorSoma = -1;
+    for (int c = 1; c <= qtdClusters; c++) {
+        int soma = 0;
+        
+        for (int m = 1; m <= qtdMaquinas; m++) {
+            if (maquinas[m - 1] == c) {
+                soma += matriz[m - 1][pPior - 1];
+            }
+        }
+
+        if (soma > melhorSoma) {
+            melhorSoma = soma;
+            melhorC = c;
+        }
+    }
+    
+    // move a parte
+    clusters[piorC - 1].second--;
+    partes[pPior - 1] = melhorC;
+    clusters[melhorC - 1].second++;
 
     return 1;
 }
@@ -629,6 +759,28 @@ void solucao::perturbaPartes() {
 
     // note que não é preciso alterar cluster.second pois cada cluster perde e ganha uma parte
     // ou seja, cluster.second nao muda
+}
+
+// atualiza o vetor de eficacia dos clusters
+void solucao::atualizaEficaciaClusters() {
+    for (int c = 1; c <= qtdClusters; c++) {
+        int n1_cluster = 0; // qtd de 1`s no cluster
+        int n0_cluster = 0; // qtd de 0`s no cluster
+
+        for (int m = 1; m <= qtdMaquinas; m++) {
+            if (maquinas[m - 1] == c) {
+                for (int p = 1; p <= qtdPartes; p++) {
+                    if (partes[p - 1] == c){
+                        if (matriz[m - 1][p - 1] == 1) n1_cluster++;
+                        else n0_cluster++;
+                    }
+                }
+            }
+        }
+
+        float efic = (float) n1_cluster / (n1_cluster + n0_cluster);
+        eficaciaClusters[c - 1] = efic;
+    }
 }
 
 // Calcula a função objetivo

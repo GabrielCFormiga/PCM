@@ -8,7 +8,11 @@ class solucao {
 
         // clusters[i - 1].first = qtd de maquinas no cluster i
         // clusters[i - 1].second = qtd de partes no cluster i
-        std::vector<std::pair<int,int>> clusters; 
+        std::vector<std::pair<int,int>> clusters;
+
+        // eficaciaClusters[i - 1] = eficacia do cluster i
+        // eficacia = n1(cluster) / (n1(cluster) + n0(cluster))
+        std::vector<float> eficaciaClusters; 
 
         // maquinas[i - 1] = x entao a maquina i pertence ao cluster x
         std::vector<int> maquinas; 
@@ -43,7 +47,10 @@ class solucao {
         int swapMaquinas();
         int swapPartes();
 
-        // geração eficiente de vizinhanças
+        // geração eficiente de vizinhanças para clusters aleatórios
+        int moveePior();
+        int moverPiorMaquina2();
+        int moverPiorParte2();
         int moverPiorMaquina();
         int moverPiorParte();
         int swapPioresMaquinas();
@@ -53,6 +60,8 @@ class solucao {
         void perturbaMaquinas();
         void perturbaPartes();
         
+        // outros métodos
+        void atualizaEficaciaClusters();
         float getFObj();
         void exibeSolucao();
 };

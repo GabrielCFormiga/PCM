@@ -82,7 +82,7 @@ int main() {
                 }
             } else if (op <= 40) {
                 // moverPiorMaquina
-                if (sLinha.moverPiorMaquina() == 0) {
+                if (sLinha.moverPiorMaquina2() == 0) {
                     // caso em que o número de cluster é máximo ou 1
                     // caso seja 1 a operação não alteraria a eficácia
                     // se qtdMaquinas == qtdPartes, então mover uma parte também é impossível
@@ -104,7 +104,7 @@ int main() {
                 }
             } else if (op <= 60) {
                 // moverPiorParte
-                if (sLinha.moverParte() == 0) {
+                if (sLinha.moverPiorParte2() == 0) {
                     // caso em que o número de clusters é máximo ou 1
                     // caso seja 1 a operação não alteraria a eficácia
                     // se qtdPartes == qtdMaquinas, então mover uma maquina também é impossível
