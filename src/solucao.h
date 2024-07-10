@@ -48,11 +48,14 @@ class solucao {
         int swapPartes();
 
         // geração eficiente de vizinhanças para clusters aleatórios
-        int moveePior();
+        int unionPiorCluster();
+        
+        int moverPior();
         int moverPiorMaquina2();
         int moverPiorParte2();
         int moverPiorMaquina();
         int moverPiorParte();
+
         int swapPioresMaquinas();
         int swapPioresPartes();
 

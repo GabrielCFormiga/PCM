@@ -361,6 +361,107 @@ int solucao::swapPartes() {
     return 1;
 }
 
+// une o pior cluster com o cluster mais compatível
+// retorna 0 se não foi possível unir dois clusters
+// retorna 1 se foi possível
+int solucao::unionPiorCluster() {
+    if (qtdClusters == 1) return 0;
+
+    atualizaEficaciaClusters();
+
+    // procura o pior cluster
+    int piorC;
+    float minEficacia = 1.1;
+    for (int c = 1; c <= qtdClusters; c++) {
+        if (eficaciaClusters[c - 1] < minEficacia) {
+            minEficacia = eficaciaClusters[c - 1];
+            piorC = c;
+        }       
+    }
+
+    std::vector<int> maquinasPiorC;
+    std::vector<int> partesPiorC;
+    for (int m = 1; m <= qtdMaquinas; m++) if (maquinas[m - 1] == piorC) maquinasPiorC.push_back(m);
+    for (int p = 1; p <= qtdPartes; p++) if (partes[p - 1] == piorC) partesPiorC.push_back(p);
+
+    // procura o cluster mais compatível
+    // compatibilidade = n1_comp / (n1_comp + n0_comp)
+    // n1 são os 1`s gerados pela união e n0 são os 0`s gerados pela união
+    int melhorC;
+    float maxComp = -1; 
+
+    for (int c = 1; c <= qtdClusters; c++) {
+        if (c == piorC) continue;
+
+        int n1_comp = 0, n0_comp = 0;
+
+        // verifica a compatibilidade das maquinas
+        for (int i = 0; i < maquinasPiorC.size(); i++) {
+            for (int p = 1; p <= qtdPartes; p++) {
+                if (partes[p - 1] == c) {
+                    if (matriz[maquinasPiorC[i] - 1][p - 1] == 1) n1_comp++;
+                    else n0_comp++;
+                }
+            }
+        }
+
+        // verifica a compatibilidade das partes
+        for (int i = 0; i < partesPiorC.size(); i++) {
+            for (int m = 1; m <= qtdMaquinas; m++) {
+                if (maquinas[m - 1] == c) {
+                    if (matriz[m - 1][partesPiorC[i] - 1] == 1) n1_comp++;
+                    else n0_comp++;
+                }
+            }
+        }
+
+        float comp = (float) n1_comp / (n1_comp + n0_comp);
+        if (comp > maxComp) {
+            maxComp = comp;
+            melhorC = c;
+        }
+    }
+
+    // une piorC com melhorC
+    if (piorC < melhorC) std::swap(piorC, melhorC);
+
+    // une as maquinas
+    for (int i = 0; i < qtdMaquinas; i++) {
+        if (maquinas[i] == piorC) {
+            maquinas[i] = melhorC;
+            clusters[piorC - 1].first--;
+            clusters[melhorC - 1].first++;
+        }
+
+        if (maquinas[i] > piorC) {
+            int z = maquinas[i];
+            clusters[z - 1].first--;
+            maquinas[i] = z - 1;
+            clusters[z - 2].first++;
+        }
+    }   
+
+    // une as partes 
+    for (int i = 0; i < qtdPartes; i++) {
+        if (partes[i] == piorC) {
+            partes[i] = melhorC;
+            clusters[piorC - 1].second--;
+            clusters[melhorC - 1].second++;
+        }
+
+        if (partes[i] > piorC) {
+            int z = partes[i];
+            clusters[z - 1].second--;
+            partes[i] = z - 1;
+            clusters[z - 2].second++;
+        }
+    }
+
+    qtdClusters--;
+
+    return 1;
+}
+
 // move a pior máquina do pior cluster para o cluster mais compatível
 // retorna 0 se não foi possível mover alguma máquina
 // retorna 1 se foi possível 
