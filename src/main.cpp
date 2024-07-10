@@ -41,7 +41,7 @@ int main() {
             solucao sLinha = s;
 
             // 10% unionPiorCluster, 10% split
-            // 20% moverPiorMaquina, 20% moverPiorParte
+            // 20% moverPiorMaquina2, 20% moverPiorParte2
             // 5% moverMaquina, 5% moverParte
             // 10% swapPioresMaquinas, 10% swapPioresPartes
             // 5% swapMaquina, 5% swapParte
@@ -73,10 +73,10 @@ int main() {
                     } else {
                         if (s.qtdPartes > s.qtdMaquinas) {
                             // o número de partes é maior do que o de máquinas
-                            sLinha.moverParte();
+                            sLinha.moverPiorParte2();
                         } else {
                             // o número de máquinas é maior do que o de partes
-                            sLinha.moverMaquina();
+                            sLinha.moverPiorMaquina2();
                         }
                     }
                 }
@@ -99,7 +99,7 @@ int main() {
                     } else if (opNovo <= 60) {
                         sLinha.swapMaquinas();
                     } else {
-                        sLinha.moverParte();
+                        sLinha.moverPiorParte2();
                     }
                 }
             } else if (op <= 60) {
@@ -121,7 +121,7 @@ int main() {
                     } else if (opNovo <= 60) {
                         sLinha.swapMaquinas();
                     } else {
-                        sLinha.moverMaquina();
+                        sLinha.moverPiorMaquina2();
                     }
                 }
             } else if (op <= 65) {
@@ -144,7 +144,7 @@ int main() {
                     } else if (opNovo <= 60) {
                         sLinha.swapMaquinas();
                     } else {
-                        sLinha.moverParte();
+                        sLinha.moverPiorParte2();
                     }
                 }
             } else if (op <= 70) {
@@ -167,7 +167,7 @@ int main() {
                     } else if (opNovo <= 60) {
                         sLinha.swapMaquinas();
                     } else {
-                        sLinha.moverMaquina();
+                        sLinha.moverPiorMaquina2();
                     }
                 }
             } else if (op <= 80) {
