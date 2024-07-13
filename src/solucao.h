@@ -50,7 +50,10 @@ class solucao {
         // geração eficiente de vizinhanças
         int unionPiorCluster();
         
-        int moverPior();
+        int moverPior2();
+        int moverPior3();
+        int moverPiorMaquina3();
+        int moverPiorParte3();
         int moverPiorMaquina2();
         int moverPiorParte2();
         int moverPiorMaquina();
