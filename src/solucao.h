@@ -39,7 +39,7 @@ class solucao {
     // métodos
         void setMatriz();
 
-        // geração de vizinhanças de forma aleatótia
+        // geração de vizinhanças de forma aleatória
         int unionCluster();
         int splitCluster();
         int moverMaquina();
@@ -47,7 +47,7 @@ class solucao {
         int swapMaquinas();
         int swapPartes();
 
-        // geração eficiente de vizinhanças para clusters aleatórios
+        // geração eficiente de vizinhanças
         int unionPiorCluster();
         
         int moverPior();

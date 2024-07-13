@@ -462,10 +462,138 @@ int solucao::unionPiorCluster() {
     return 1;
 }
 
+// move a pior parte ou máquina do pior cluster para o cluster mais compatível
+// retorna 0 se não foi possível mover
+// retorna 1 se foi possível
+int solucao::moverPior() {
+    if (qtdClusters == 1) return 0; // não faz sentido a operação
+
+    atualizaEficaciaClusters();
+
+    // procura o pior cluster que pode ter uma máquina ou uma parte movida
+    int piorC = -1;
+    float minEficacia = 1.1;
+    for (int c = 1; c <= qtdClusters; c++) {
+        if ((clusters[c - 1].first > 1 || clusters[c - 1].second > 1) && eficaciaClusters[c - 1] < minEficacia) {
+            minEficacia = eficaciaClusters[c - 1];
+            piorC = c;
+        }       
+    }
+
+    if (piorC == -1) return 0; // não há cluster que possa ter uma máquina ou parte movida
+    
+    if (clusters[piorC - 1].first == 1) {
+        moverPiorParte2();
+        return 1;
+    }
+    
+    if (clusters[piorC - 1].second == 1) {
+        moverPiorMaquina2();
+        return 1;
+    }
+
+    // seleciona a pior máquina 
+    int mPior, mPiorSoma = qtdPartes + 1;
+
+    for (int m = 1; m <= qtdMaquinas; m++) {
+        if (maquinas[m - 1] == piorC) {
+            int soma = 0;
+
+            for (int p = 1; p <= qtdPartes; p++) {
+                if (partes[p - 1] == piorC) {
+                    soma += matriz[m - 1][p - 1];
+                }
+            }
+
+            if (soma < mPiorSoma) {
+                mPiorSoma = soma;
+                mPior = m;
+            }
+        }
+    }
+
+    // seleciona a pior parte 
+    int pPior, pPiorSoma = qtdMaquinas + 1;
+
+    for (int p = 1; p <= qtdPartes; p++) {
+        if (partes[p - 1] == piorC) {
+            int soma = 0;
+
+            for (int m = 1; m <= qtdMaquinas; m++) {
+                if (maquinas[m - 1] == piorC) {
+                    soma += matriz[m - 1][p - 1];
+                }
+            }
+
+            if (soma < pPiorSoma) {
+                pPiorSoma = soma;
+                pPior = p;
+            }
+        }
+    }
+
+    // compara a pior entre elas
+    if (pPiorSoma <= mPiorSoma) {
+        // mover a parte
+
+        // procura o cluster com melhor compatibilidade
+        // no caso crítico esse cluster é o próptio piorC
+        int melhorC, melhorSoma = -1;
+        for (int c = 1; c <= qtdClusters; c++) {
+            int soma = 0;
+            
+            for (int m = 1; m <= qtdMaquinas; m++) {
+                if (maquinas[m - 1] == c) {
+                    soma += matriz[m - 1][pPior - 1];
+                }
+            }
+
+            if (soma > melhorSoma) {
+                melhorSoma = soma;
+                melhorC = c;
+            }
+        }
+        
+        // move a parte
+        clusters[piorC - 1].second--;
+        partes[pPior - 1] = melhorC;
+        clusters[melhorC - 1].second++;
+    } else {
+        // mover a máquina
+
+        // procura o cluster com melhor compatibilidade
+        // no caso crítico esse cluster é o próptio piorC
+        int melhorC, melhorSoma = -1;
+        for (int c = 1; c <= qtdClusters; c++) {
+            int soma = 0;
+            
+            for (int p = 1; p <= qtdPartes; p++) {
+                if (partes[p - 1] == c) {
+                    soma += matriz[mPior - 1][p - 1];
+                }
+            }
+
+            if (soma > melhorSoma) {
+                melhorSoma = soma;
+                melhorC = c;
+            }
+        }
+        
+        // move a máquina
+        clusters[piorC - 1].first--;
+        maquinas[mPior - 1] = melhorC;
+        clusters[melhorC - 1].first++;
+    }
+
+    return 1;
+}
+
 // move a pior máquina do pior cluster para o cluster mais compatível
 // retorna 0 se não foi possível mover alguma máquina
 // retorna 1 se foi possível 
 int solucao::moverPiorMaquina2() {
+    if (qtdClusters == 1) return 0; // não faz sentido a operação
+
     atualizaEficaciaClusters();
 
     // procura o pior cluster que pode ter uma máquina movida
@@ -530,6 +658,8 @@ int solucao::moverPiorMaquina2() {
 // retorna 0 se não foi possível mover alguma parte
 // retorna 1 se foi possível 
 int solucao::moverPiorParte2() {
+    if (qtdClusters == 1) return 0; // não faz sentido a operação
+
     atualizaEficaciaClusters();
 
     // procura o pior cluster que pode ter uma parte movida
