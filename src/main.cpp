@@ -41,7 +41,7 @@ int main() {
             solucao sLinha = s;
 
             // 10% unionPiorCluster, 10% split
-            // 10% moverPior2, 10% moverPior3, 5% moverPiorMaquina2, 5% moverPiorMaquina3, 5% moverPiorParte2, 5% moverPiorParte3
+            // 15% moverPior2, 5% moverPior3, 8% moverPiorMaquina2, 2% moverPiorMaquina3, 8% moverPiorParte2, 2% moverPiorParte3
             // 5% moverMaquina, 5% moverParte
             // 10% swapPioresMaquinas, 10% swapPioresPartes
             // 5% swapMaquina, 5% swapParte
@@ -83,7 +83,7 @@ int main() {
                     }
                 }
 
-            } else if (op <= 30) {
+            } else if (op <= 35) {
                 // moverPior2
 
                 if (sLinha.moverPior2() == 0) {
@@ -104,7 +104,7 @@ int main() {
                     }
                 }
                 
-            } else if (op <= 40) {
+            } else if (op <= 43) {
                 // moverPior3
 
                 if (sLinha.moverPior3() == 0) {
@@ -150,7 +150,7 @@ int main() {
                     }
                 }
 
-            } else if (op <= 50) {
+            } else if (op <= 53) {
                 // moverPiorMaquina3
 
                 if (sLinha.moverPiorMaquina3() == 0) {
