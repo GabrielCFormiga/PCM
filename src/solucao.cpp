@@ -664,51 +664,71 @@ int solucao::moverPior2() {
 
         // procura o cluster com melhor compatibilidade
         // no caso crítico esse cluster é o próptio piorC
-        int melhorC, melhorSoma = -1;
+        int melhorC1, melhorSoma1 = -1;
+        int melhorC0, melhorSoma0 = qtdMaquinas + 1;
+
         for (int c = 1; c <= qtdClusters; c++) {
-            int soma = 0;
+            int soma1 = 0, soma0 = 0;
             
             for (int m = 1; m <= qtdMaquinas; m++) {
                 if (maquinas[m - 1] == c) {
-                    soma += matriz[m - 1][pPior - 1];
+                    if (matriz[m - 1][pPior - 1] == 1) soma1++;
+                    else soma0++;
                 }
             }
 
-            if (soma > melhorSoma) {
-                melhorSoma = soma;
-                melhorC = c;
+            if (soma0 < melhorSoma0) {
+                melhorSoma0 = soma0;
+                melhorC0 = c;
+            }
+            if (soma1 > melhorSoma1) {
+                melhorSoma1 = soma1;
+                melhorC1 = c;
             }
         }
         
+        // se não há cluster de destino com pelo menos um 1 escolhe o cluster com a menor quantidade de 0`s 
+        if (melhorSoma1 == 0) melhorC1 = melhorC0;
+
         // move a parte
         clusters[piorC - 1].second--;
-        partes[pPior - 1] = melhorC;
-        clusters[melhorC - 1].second++;
+        partes[pPior - 1] = melhorC1;
+        clusters[melhorC1 - 1].second++;
+        
     } else {
         // mover a máquina
 
         // procura o cluster com melhor compatibilidade
         // no caso crítico esse cluster é o próptio piorC
-        int melhorC, melhorSoma = -1;
+        int melhorC1, melhorSoma1 = -1;
+        int melhorC0, melhorSoma0 = qtdPartes + 1;
         for (int c = 1; c <= qtdClusters; c++) {
-            int soma = 0;
+            int soma1 = 0, soma0 = 0;
             
             for (int p = 1; p <= qtdPartes; p++) {
                 if (partes[p - 1] == c) {
-                    soma += matriz[mPior - 1][p - 1];
+                    if (matriz[mPior - 1][p - 1] == 1) soma1++;
+                    else soma0++;
                 }
             }
 
-            if (soma > melhorSoma) {
-                melhorSoma = soma;
-                melhorC = c;
+            if (soma0 < melhorSoma0) {
+                melhorSoma0 = soma0;
+                melhorC0 = c;
+            }
+            if (soma1 > melhorSoma1) {
+                melhorSoma1 = soma1;
+                melhorC1 = c;
             }
         }
         
+        // se não há cluster de destino com pelo menos um 1 escolhe o cluster com a menor quantidade de 0`s 
+        if (melhorSoma1 == 0) melhorC1 = melhorC0;
+
         // move a máquina
         clusters[piorC - 1].first--;
-        maquinas[mPior - 1] = melhorC;
-        clusters[melhorC - 1].first++;
+        maquinas[mPior - 1] = melhorC1;
+        clusters[melhorC1 - 1].first++;
     }
 
     return 1;
@@ -888,26 +908,35 @@ int solucao::moverPiorMaquina2() {
 
     // procura o cluster com melhor compatibilidade
     // no caso crítico esse cluster é o próptio piorC
-    int melhorC, melhorSoma = -1;
+    int melhorC1, melhorSoma1 = -1;
+    int melhorC0, melhorSoma0 = qtdPartes + 1;
     for (int c = 1; c <= qtdClusters; c++) {
-        int soma = 0;
+        int soma1 = 0, soma0 = 0;
         
         for (int p = 1; p <= qtdPartes; p++) {
             if (partes[p - 1] == c) {
-                soma += matriz[mPior - 1][p - 1];
+                if (matriz[mPior - 1][p - 1] == 1) soma1++;
+                else soma0++;
             }
         }
 
-        if (soma > melhorSoma) {
-            melhorSoma = soma;
-            melhorC = c;
+        if (soma0 < melhorSoma0) {
+            melhorSoma0 = soma0;
+            melhorC0 = c;
+        }
+        if (soma1 > melhorSoma1) {
+            melhorSoma1 = soma1;
+            melhorC1 = c;
         }
     }
     
+    // se não há cluster de destino com pelo menos um 1 escolhe o cluster com a menor quantidade de 0`s 
+    if (melhorSoma1 == 0) melhorC1 = melhorC0;
+
     // move a máquina
     clusters[piorC - 1].first--;
-    maquinas[mPior - 1] = melhorC;
-    clusters[melhorC - 1].first++;
+    maquinas[mPior - 1] = melhorC1;
+    clusters[melhorC1 - 1].first++;
 
     return 1;
 }
@@ -954,26 +983,36 @@ int solucao::moverPiorParte2() {
 
     // procura o cluster com melhor compatibilidade
     // no caso crítico esse cluster é o próptio piorC
-    int melhorC, melhorSoma = -1;
+    int melhorC1, melhorSoma1 = -1;
+    int melhorC0, melhorSoma0 = qtdMaquinas + 1;
+
     for (int c = 1; c <= qtdClusters; c++) {
-        int soma = 0;
+        int soma1 = 0, soma0 = 0;
         
         for (int m = 1; m <= qtdMaquinas; m++) {
             if (maquinas[m - 1] == c) {
-                soma += matriz[m - 1][pPior - 1];
+                if (matriz[m - 1][pPior - 1] == 1) soma1++;
+                else soma0++;
             }
         }
 
-        if (soma > melhorSoma) {
-            melhorSoma = soma;
-            melhorC = c;
+        if (soma0 < melhorSoma0) {
+            melhorSoma0 = soma0;
+            melhorC0 = c;
+        }
+        if (soma1 > melhorSoma1) {
+            melhorSoma1 = soma1;
+            melhorC1 = c;
         }
     }
     
+    // se não há cluster de destino com pelo menos um 1 escolhe o cluster com a menor quantidade de 0`s 
+    if (melhorSoma1 == 0) melhorC1 = melhorC0;
+
     // move a parte
     clusters[piorC - 1].second--;
-    partes[pPior - 1] = melhorC;
-    clusters[melhorC - 1].second++;
+    partes[pPior - 1] = melhorC1;
+    clusters[melhorC1 - 1].second++;
 
     return 1;
 }
