@@ -734,6 +734,410 @@ int solucao::moverPior2() {
     return 1;
 }
 
+// escolhe um entre os três piores clusters (6 : 3 : 1 ou 6 : 4 ou caso único)
+// escolhe uma entre as três piores máquinas (6 : 3 : 1 ou 6 : 4 ou caso único)
+// move para um entre os três cluster mais compatíveis (maior soma de 1`s) (6 : 3 : 1 ou 6 : 4 ou caso único)
+// retorna 0 se não foi possível mover alguma máquina
+// retorna 1 se foi possível 
+int solucao::moverPiorMaquina4() {
+    if (qtdClusters == 1) return 0; // não faz sentido a operação
+
+    atualizaEficaciaClusters();
+
+    // procura os três piores clusters que podem ter pelo menos uma máquina movida
+    // fpiorC, spiorC, tpiorC são o primeiro, segundo e terceiro piores clusters respectivamente
+    int fpiorC = -1, spiorC = -1, tpiorC = -1;
+    float fEficacia = 1.1, sEficacia = 1.1, tEficacia = 1.1;
+    for (int c = 1; c <= qtdClusters; c++) {   
+        if (clusters[c - 1].first > 1) {
+            if (eficaciaClusters[c - 1] < fEficacia) {
+                tEficacia = sEficacia;
+                tpiorC = spiorC;
+
+                sEficacia = fEficacia;
+                spiorC = fpiorC;
+
+                fEficacia = eficaciaClusters[c - 1];
+                fpiorC = c;
+            } else if (eficaciaClusters[c - 1] < sEficacia) {
+                tEficacia = sEficacia;
+                tpiorC = spiorC;
+
+                sEficacia = eficaciaClusters[c - 1];
+                spiorC = c;
+            } else if (eficaciaClusters[c - 1] < tEficacia) {
+                tEficacia = eficaciaClusters[c - 1];
+                tpiorC = c;
+            }
+        } 
+
+    }
+
+    if (fpiorC == -1) return 0; // não há cluster que possa ter uma parte movida
+    else if (spiorC == -1) {
+        spiorC = fpiorC;
+        tpiorC = fpiorC;
+    } else if (tpiorC == -1) {
+        tpiorC = spiorC; 
+    }
+
+    int aux = intervalRand(1, 10);
+    int piorC;
+    if (aux <= 6) piorC = fpiorC;
+    else if (aux <= 9) piorC = spiorC;
+    else if (aux <= 10) piorC = tpiorC;
+
+    // procura as três piores máquinas
+    // f, s, t indicam primeiro, segundo e terceiro piores respectivamente
+    int fmPior = -1, fpiorSoma = qtdPartes + 1;
+    int smPior = -1, spiorSoma = qtdPartes + 1;
+    int tmPior = -1, tpiorSoma = qtdPartes + 1;
+
+    for (int m = 1; m <= qtdMaquinas; m++) {
+        if (maquinas[m - 1] == piorC) {
+            int soma = 0;
+
+            for (int p = 1; p <= qtdPartes; p++) {
+                if (partes[p - 1] == piorC) {
+                    soma += matriz[m - 1][p - 1];
+                }
+            }
+
+            if (soma < fpiorSoma) {
+                tpiorSoma = spiorSoma;
+                tmPior = smPior; 
+                
+                spiorSoma = fpiorSoma;
+                smPior = fmPior;
+                
+                fpiorSoma = soma;
+                fmPior = m;
+            } else if (soma < spiorSoma) {
+                tpiorSoma = spiorSoma;
+                tmPior = smPior;
+
+                spiorSoma = soma;
+                smPior = m;
+            } else if (soma < tpiorSoma) {
+                tpiorSoma = soma;
+                tmPior = m;
+            }
+        }
+    }
+
+    if (smPior == -1) {
+        smPior = fmPior;
+        tmPior = fmPior;
+    } else if (tmPior == -1) {
+        tmPior = smPior;
+    }
+
+    aux = intervalRand(1, 10);
+    int mPior;
+    if (aux <= 6) mPior = fmPior;
+    else if (aux <= 9) mPior = smPior;
+    else if (aux <= 10) mPior = tmPior;
+
+    // procura os três clusters com melhor compatibilidade
+    // no caso crítico um desses clusters é o próptio piorC
+    int fmelhorC1 = -1, fmelhorSoma1 = -1;
+    int fmelhorC0 = -1, fmelhorSoma0 = qtdPartes + 1;
+    int smelhorC1 = -1, smelhorSoma1 = -1;
+    int smelhorC0 = -1, smelhorSoma0 = qtdPartes + 1;
+    int tmelhorC1 = -1, tmelhorSoma1 = -1;
+    int tmelhorC0 = -1, tmelhorSoma0 = qtdPartes + 1;
+
+    for (int c = 1; c <= qtdClusters; c++) {
+        int soma1 = 0, soma0 = 0;
+        
+        for (int p = 1; p <= qtdPartes; p++) {
+            if (partes[p - 1] == c) {
+                if (matriz[mPior - 1][p - 1] == 1) soma1++;
+                else soma0++;
+            }
+        }
+
+        if (soma0 < fmelhorSoma0) {
+            tmelhorSoma0 = smelhorSoma0;
+            tmelhorC0 = smelhorC0;
+
+            smelhorSoma0 = fmelhorSoma0;
+            smelhorC0 = fmelhorC0;
+
+            fmelhorSoma0 = soma0;
+            fmelhorC0 = c;
+        } else if (soma0 < smelhorSoma0) {
+            tmelhorSoma0 = smelhorSoma0;
+            tmelhorC0 = smelhorC0;
+
+            smelhorSoma0 = soma0;
+            smelhorC0 = c;
+        } else if (soma0 < tmelhorSoma0) {
+            tmelhorSoma0 = soma0;
+            tmelhorC0 = c;
+        }
+
+        if (soma1 > fmelhorSoma1) {
+            tmelhorSoma1 = smelhorSoma1;
+            tmelhorC1 = smelhorC1;
+
+            smelhorSoma1 = fmelhorSoma1;
+            smelhorC1 = fmelhorC1;
+
+            fmelhorSoma1 = soma1;
+            fmelhorC1 = c;
+        } else if (soma1 > smelhorSoma1) {
+            tmelhorSoma1 = smelhorSoma1;
+            tmelhorC1 = smelhorC1;
+
+            smelhorSoma1 = soma1;
+            smelhorC1 = c;
+        } else if (soma1 > tmelhorSoma1) {
+            tmelhorSoma1 = soma1;
+            tmelhorC1 = c;
+        }
+    }
+    
+    if (smelhorC1 == -1) {
+        smelhorC1 = fmelhorC1;
+        tmelhorC1 = fmelhorC1;
+    } else if (tmelhorC1 == -1) {
+        tmelhorC1 = smelhorC1;
+    }
+
+    if (smelhorC0 == -1) {
+        smelhorC0 = fmelhorC0;
+        tmelhorC0 = fmelhorC0;
+    } else if (tmelhorC0 == -1) {
+        tmelhorC0 = smelhorC0;
+    }
+
+    aux = intervalRand(1, 10);
+    int melhorC1;
+    if (aux <= 6) melhorC1 = fmelhorC1;
+    else if (aux <= 9) melhorC1 = smelhorC1;
+    else if (aux <= 10) melhorC1 = tmelhorC1;
+
+    aux = intervalRand(1, 10);
+    int melhorC0;
+    if (aux <= 6) melhorC0 = fmelhorC0;
+    else if (aux <= 9) melhorC0 = smelhorC0;
+    else if (aux <= 10) melhorC0 = tmelhorC0;
+
+
+    // se não há cluster de destino com pelo menos um 1 escolhe o cluster com a menor quantidade de 0`s 
+    if (fmelhorSoma1 == 0) melhorC1 = melhorC0;
+
+    // move a máquina
+    clusters[piorC - 1].first--;
+    maquinas[mPior - 1] = melhorC1;
+    clusters[melhorC1 - 1].first++;
+
+    return 1;
+}
+
+// escolhe um entre os três piores clusters (6 : 3 : 1 ou 6 : 4 ou caso único)
+// escolhe uma entre as três piores partes (6 : 3 : 1 ou 6 : 4 ou caso único)
+// move para um entre os três cluster mais compatíveis (maior soma de 1`s) (6 : 3 : 1 ou 6 : 4 ou caso único)
+// retorna 0 se não foi possível mover alguma parte
+// retorna 1 se foi possível 
+int solucao::moverPiorParte4() {
+    if (qtdClusters == 1) return 0; // não faz sentido a operação
+
+    atualizaEficaciaClusters();
+
+    // procura os três piores clusters que podem ter pelo menos uma parte movida
+    // fpiorC, spiorC, tpiorC são o primeiro, segundo e terceiro piores clusters respectivamente
+    int fpiorC = -1, spiorC = -1, tpiorC = -1;
+    float fEficacia = 1.1, sEficacia = 1.1, tEficacia = 1.1;
+    for (int c = 1; c <= qtdClusters; c++) {   
+        if (clusters[c - 1].second > 1) {
+            if (eficaciaClusters[c - 1] < fEficacia) {
+                tEficacia = sEficacia;
+                tpiorC = spiorC;
+
+                sEficacia = fEficacia;
+                spiorC = fpiorC;
+
+                fEficacia = eficaciaClusters[c - 1];
+                fpiorC = c;
+            } else if (eficaciaClusters[c - 1] < sEficacia) {
+                tEficacia = sEficacia;
+                tpiorC = spiorC;
+
+                sEficacia = eficaciaClusters[c - 1];
+                spiorC = c;
+            } else if (eficaciaClusters[c - 1] < tEficacia) {
+                tEficacia = eficaciaClusters[c - 1];
+                tpiorC = c;
+            }
+        } 
+
+    }
+
+    if (fpiorC == -1) return 0; // não há cluster que possa ter uma parte movida
+    else if (spiorC == -1) {
+        spiorC = fpiorC;
+        tpiorC = fpiorC;
+    } else if (tpiorC == -1) {
+        tpiorC = spiorC; 
+    }
+
+    int aux = intervalRand(1, 10);
+    int piorC;
+    if (aux <= 6) piorC = fpiorC;
+    else if (aux <= 9) piorC = spiorC;
+    else if (aux <= 10) piorC = tpiorC;
+
+    // procura as três piores partes
+    // f, s, t indicam primeiro, segundo e terceiro piores respectivamente
+    int fpPior = -1, fpiorSoma = qtdMaquinas + 1;
+    int spPior = -1, spiorSoma = qtdMaquinas + 1;
+    int tpPior = -1, tpiorSoma = qtdMaquinas + 1;
+
+    for (int p = 1; p <= qtdPartes; p++) {
+        if (partes[p - 1] == piorC) {
+            int soma = 0;
+
+            for (int m = 1; m <= qtdMaquinas; m++) {
+                if (maquinas[m - 1] == piorC) {
+                    soma += matriz[m - 1][p - 1];
+                }
+            }
+
+            if (soma < fpiorSoma) {
+                tpiorSoma = spiorSoma;
+                tpPior = spPior; 
+                
+                spiorSoma = fpiorSoma;
+                spPior = fpPior;
+                
+                fpiorSoma = soma;
+                fpPior = p;
+            } else if (soma < spiorSoma) {
+                tpiorSoma = spiorSoma;
+                tpPior = spPior;
+
+                spiorSoma = soma;
+                spPior = p;
+            } else if (soma < tpiorSoma) {
+                tpiorSoma = soma;
+                tpPior = p;
+            }
+        }
+    }
+
+    if (spPior == -1) {
+        spPior = fpPior;
+        tpPior = fpPior;
+    } else if (tpPior == -1) {
+        tpPior = spPior;
+    }
+
+    aux = intervalRand(1, 10);
+    int pPior;
+    if (aux <= 6) pPior = fpPior;
+    else if (aux <= 9) pPior = spPior;
+    else if (aux <= 10) pPior = tpPior;
+
+    // procura os três clusters com melhor compatibilidade
+    // no caso crítico um desses clusters é o próptio piorC
+    int fmelhorC1 = -1, fmelhorSoma1 = -1;
+    int fmelhorC0 = -1, fmelhorSoma0 = qtdMaquinas + 1;
+    int smelhorC1 = -1, smelhorSoma1 = -1;
+    int smelhorC0 = -1, smelhorSoma0 = qtdMaquinas + 1;
+    int tmelhorC1 = -1, tmelhorSoma1 = -1;
+    int tmelhorC0 = -1, tmelhorSoma0 = qtdMaquinas + 1;
+
+    for (int c = 1; c <= qtdClusters; c++) {
+        int soma1 = 0, soma0 = 0;
+        
+        for (int m = 1; m <= qtdMaquinas; m++) {
+            if (maquinas[m - 1] == c) {
+                if (matriz[m - 1][pPior - 1] == 1) soma1++;
+                else soma0++;
+            }
+        }
+
+        if (soma0 < fmelhorSoma0) {
+            tmelhorSoma0 = smelhorSoma0;
+            tmelhorC0 = smelhorC0;
+
+            smelhorSoma0 = fmelhorSoma0;
+            smelhorC0 = fmelhorC0;
+
+            fmelhorSoma0 = soma0;
+            fmelhorC0 = c;
+        } else if (soma0 < smelhorSoma0) {
+            tmelhorSoma0 = smelhorSoma0;
+            tmelhorC0 = smelhorC0;
+
+            smelhorSoma0 = soma0;
+            smelhorC0 = c;
+        } else if (soma0 < tmelhorSoma0) {
+            tmelhorSoma0 = soma0;
+            tmelhorC0 = c;
+        }
+
+        if (soma1 > fmelhorSoma1) {
+            tmelhorSoma1 = smelhorSoma1;
+            tmelhorC1 = smelhorC1;
+
+            smelhorSoma1 = fmelhorSoma1;
+            smelhorC1 = fmelhorC1;
+
+            fmelhorSoma1 = soma1;
+            fmelhorC1 = c;
+        } else if (soma1 > smelhorSoma1) {
+            tmelhorSoma1 = smelhorSoma1;
+            tmelhorC1 = smelhorC1;
+
+            smelhorSoma1 = soma1;
+            smelhorC1 = c;
+        } else if (soma1 > tmelhorSoma1) {
+            tmelhorSoma1 = soma1;
+            tmelhorC1 = c;
+        }
+    }
+    
+    if (smelhorC1 == -1) {
+        smelhorC1 = fmelhorC1;
+        tmelhorC1 = fmelhorC1;
+    } else if (tmelhorC1 == -1) {
+        tmelhorC1 = smelhorC1;
+    }
+
+    if (smelhorC0 == -1) {
+        smelhorC0 = fmelhorC0;
+        tmelhorC0 = fmelhorC0;
+    } else if (tmelhorC0 == -1) {
+        tmelhorC0 = smelhorC0;
+    }
+
+    aux = intervalRand(1, 10);
+    int melhorC1;
+    if (aux <= 6) melhorC1 = fmelhorC1;
+    else if (aux <= 9) melhorC1 = smelhorC1;
+    else if (aux <= 10) melhorC1 = tmelhorC1;
+
+    aux = intervalRand(1, 10);
+    int melhorC0;
+    if (aux <= 6) melhorC0 = fmelhorC0;
+    else if (aux <= 9) melhorC0 = smelhorC0;
+    else if (aux <= 10) melhorC0 = tmelhorC0;
+
+
+    // se não há cluster de destino com pelo menos um 1 escolhe o cluster com a menor quantidade de 0`s 
+    if (fmelhorSoma1 == 0) melhorC1 = melhorC0;
+
+    // move a parte
+    clusters[piorC - 1].second--;
+    partes[pPior - 1] = melhorC1;
+    clusters[melhorC1 - 1].second++;
+
+    return 1;
+}
+
 // move a pior máquina do pior cluster para o cluster mais compatível (menor soma de 0`s)
 // retorna 0 se não foi possível mover alguma máquina
 // retorna 1 se foi possível 
@@ -1223,7 +1627,6 @@ int solucao::swapPioresPartes() {
 
     return 1;
 }
-
 
 // faz uma perturbação linear de máquinas
 // move uma máquina do cluster i para o cluster i + 1 até que o cluster inicial receba uma máquina do último cluster 

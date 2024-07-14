@@ -24,7 +24,7 @@ int main() {
     // começo do SA
     solucao sMelhor = s;
     float alpha = 0.98; // coeficiente de resfriamento
-    float T = 4000;
+    float T = 10000;
     int iterT = 0; // número de iterações na temperatura T 
     int SAmax = 500;
     int contador = 0;
@@ -37,7 +37,7 @@ int main() {
 
             //cout << "\titerT = " << iterT << endl; 
 
-            int op = intervalRand(0, 100);
+            int op = intervalRand(1, 100);
             solucao sLinha = s;
 
             // 10% unionPiorCluster, 10% split
@@ -63,8 +63,8 @@ int main() {
                     // se a matriz não for quadrada uma das operações de mover é possível
                     // escolha entre swapParte, swapMaquina ou unionCluster
 
-                    int opInterna = intervalRand(0, 60);
-                    if (s.qtdMaquinas != s.qtdPartes) opInterna = intervalRand(0, 80); // caso em que uma das operações de mover é possível
+                    int opInterna = intervalRand(1, 60);
+                    if (s.qtdMaquinas != s.qtdPartes) opInterna = intervalRand(1, 80); // caso em que uma das operações de mover é possível
 
                     if (opInterna <= 20) {
                         sLinha.unionPiorCluster();
@@ -91,7 +91,7 @@ int main() {
                     // a função moverPior já trata o caso n != m
                     // se só há um cluster o split é obrigatório
 
-                    int opInterna = intervalRand(0, 60);
+                    int opInterna = intervalRand(1, 60);
                     
                     if (sLinha.qtdClusters == 1) {
                         sLinha.splitCluster();
@@ -113,7 +113,7 @@ int main() {
                     // se qtdMaquinas == qtdPartes, então mover uma parte também é impossível
                     // escolha entre swapParte, swapMaquina, splitCcluster(caso qtdClusters = 1) ou unionClusters(caso qtdCluster = max)
                     
-                    int opInterna = intervalRand(0, 60);
+                    int opInterna = intervalRand(1, 60);
                     if (s.qtdMaquinas != s.qtdPartes) opInterna = intervalRand(0, 80); // caso em que se pode mover uma parte
 
                     if (sLinha.qtdClusters == 1) {
@@ -138,7 +138,7 @@ int main() {
                     // se qtdPartes == qtdMaquinas, então mover uma maquina também é impossível
                     // escolha entre swapParte, swapMaquina, splitCcluster(caso qtdClusters = 1) ou unionClusters(caso qtdCluster = max)
                     
-                    int opInterna = intervalRand(0, 60);
+                    int opInterna = intervalRand(1, 60);
                     if (s.qtdMaquinas != s.qtdPartes) opInterna = intervalRand(0, 80); // caso em que se pode mover uma maquina
 
                     if (sLinha.qtdClusters == 1) {
@@ -163,8 +163,8 @@ int main() {
                     // se qtdMaquinas == qtdPartes, então mover uma parte também é impossível
                     // escolha entre swapParte, swapMaquina, splitCcluster(caso qtdClusters = 1) ou unionClusters(caso qtdCluster = max)
                     
-                    int opInterna = intervalRand(0, 60);
-                    if (s.qtdMaquinas != s.qtdPartes) opInterna = intervalRand(0, 80); // caso em que se pode mover uma parte
+                    int opInterna = intervalRand(1, 60);
+                    if (s.qtdMaquinas != s.qtdPartes) opInterna = intervalRand(1, 80); // caso em que se pode mover uma parte
 
                     if (sLinha.qtdClusters == 1) {
                         sLinha.splitCluster();
@@ -188,8 +188,8 @@ int main() {
                     // se qtdPartes == qtdMaquinas, então mover uma maquina também é impossível
                     // escolha entre swapParte, swapMaquina, splitCcluster(caso qtdClusters = 1) ou unionClusters(caso qtdCluster = max)
                     
-                    int opInterna = intervalRand(0, 60);
-                    if (s.qtdMaquinas != s.qtdPartes) opInterna = intervalRand(0, 80); // caso em que se pode mover uma maquina
+                    int opInterna = intervalRand(1, 60);
+                    if (s.qtdMaquinas != s.qtdPartes) opInterna = intervalRand(1, 80); // caso em que se pode mover uma maquina
 
                     if (sLinha.qtdClusters == 1) {
                         sLinha.splitCluster();
