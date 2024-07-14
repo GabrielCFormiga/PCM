@@ -52,6 +52,7 @@ class solucao {
         
         int moverPior2();
         int moverPior3();
+        int moverPiorMaquina5();
         int moverPiorMaquina4();
         int moverPiorParte4();
         int moverPiorMaquina3();
