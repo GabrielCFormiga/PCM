@@ -1714,6 +1714,97 @@ int solucao::moverPiorParte() {
     return 1;
 }
 
+// procura os dois piores clusters
+// troca as máquinas de maior compatibilidade
+// retorna 0 se só há um cluster, ou seja, swap não altera a eficácia da solução
+// retorn 1 caso contrário
+int solucao::swapPioresMaquinas2() {
+    if (qtdClusters == 1) return 0;
+
+    atualizaEficaciaClusters();
+
+    // procura os dois piores clusters
+    // fpiorC, spiorC são o primeiro e segundo piores clusters respectivamente
+    int fpiorC = -1, spiorC = -1;
+    float fEficacia = 1.1, sEficacia = 1.1;
+    for (int c = 1; c <= qtdClusters; c++) {   
+        if (eficaciaClusters[c - 1] < fEficacia) {
+            sEficacia = fEficacia;
+            spiorC = fpiorC;
+
+            fEficacia = eficaciaClusters[c - 1];
+            fpiorC = c;
+        } else if (eficaciaClusters[c - 1] < sEficacia) {
+            sEficacia = eficaciaClusters[c - 1];
+            spiorC = c;
+        }
+    }
+
+    // procura a máquina de fpiorC mais compatível com spiorC
+    int fmelhorMaq1, fmelhorSoma1 = -1;
+    int fmelhorMaq0, fmelhorSoma0 = qtdPartes + 1;
+
+    for (int m = 1; m <= qtdMaquinas; m++) {
+        if (maquinas[m - 1] != fpiorC) continue;
+
+        int soma1 = 0, soma0 = 0;
+
+        for (int p = 1; p <= qtdPartes; p++) {
+            if (partes[p - 1] != spiorC) continue;
+
+            if (matriz[m - 1][p - 1] == 1) soma1++;
+            else soma0++;
+        }
+
+        if (soma1 > fmelhorSoma1) {
+            fmelhorMaq1 = m;
+            fmelhorSoma1 = soma1;
+        }
+
+        if (soma0 < fmelhorSoma0) {
+            fmelhorMaq0 = m;
+            fmelhorSoma0 = soma0;
+        }
+    }
+
+    if (fmelhorSoma1 == 0) fmelhorMaq1 = fmelhorMaq0;  
+
+    // procura a máquina de spiorC mais compatível com fpiorC
+    int smelhorMaq1, smelhorSoma1 = -1;
+    int smelhorMaq0, smelhorSoma0 = qtdPartes + 1;
+
+    for (int m = 1; m <= qtdMaquinas; m++) {
+        if (maquinas[m - 1] != spiorC) continue;
+
+        int soma1 = 0, soma0 = 0;
+
+        for (int p = 1; p <= qtdPartes; p++) {
+            if (partes[p - 1] != fpiorC) continue;
+
+            if (matriz[m - 1][p - 1] == 1) soma1++;
+            else soma0++;
+        }
+
+        if (soma1 > smelhorSoma1) {
+            smelhorMaq1 = m;
+            smelhorSoma1 = soma1;
+        }
+
+        if (soma0 < smelhorSoma0) {
+            smelhorMaq0 = m;
+            smelhorSoma0 = soma0;
+        }
+    }
+
+    if (smelhorSoma1 == 0) smelhorMaq1 = smelhorMaq0;
+
+    // faz a troca
+    maquinas[fmelhorMaq1 - 1] = spiorC;
+    maquinas[smelhorMaq1 - 1] = fpiorC;
+
+    return 1;
+}
+
 // escolhe dois clusters aleatoriamente
 // troca as piores máquinas de cada cluster
 // retorna 0 se só há um cluster, ou seja, swap não altera a eficácia da solução

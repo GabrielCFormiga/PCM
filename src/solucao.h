@@ -65,6 +65,8 @@ class solucao {
         int moverPiorMaquina();
         int moverPiorParte();
 
+        int swapPioresMaquinas2();
+        int swapPioresPartes2();
         int swapPioresMaquinas();
         int swapPioresPartes();
 
