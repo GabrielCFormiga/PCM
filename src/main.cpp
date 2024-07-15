@@ -24,9 +24,10 @@ int main() {
     // começo do SA
     solucao sMelhor = s;
     float alpha = 0.98; // coeficiente de resfriamento
-    float T = 10000;
+    float T = 5000;
     int iterT = 0; // número de iterações na temperatura T 
     int SAmax = 500;
+    int PAmax = 1000;
     int contador = 0;
 
     while (T > 0.00001) {
@@ -34,7 +35,7 @@ int main() {
         while (iterT < SAmax) {
             iterT++;
             contador++;
-
+            
             //cout << "\titerT = " << iterT << endl; 
 
             int op = intervalRand(1, 100);
@@ -292,14 +293,25 @@ int main() {
 
             }
 
-            float delta = sLinha.getFObj() - s.eficacia;
+            sLinha.getFObj();
+            float delta = sLinha.eficacia - s.eficacia;
             
 
-            if (contador > 2 * SAmax) {
+            if (contador > PAmax) {
+                PAmax *= 2;
                 contador = 0;
-                T = T * 1.15;
+                T = T * 1.0005;
 
                 // perturbação
+                s = sMelhor;
+                for (int i = 0; i < 4; i++) {
+                    s.unionClusterPiorSomaOut();
+
+                    if (s.eficacia > sMelhor.eficacia) {
+                        sMelhor = s;
+                    }
+                }
+
                 if (s.qtdClusters < min(s.qtdMaquinas, s.qtdPartes)) {
                     s.splitPiorCluster();
                     s.unionCluster();
@@ -314,13 +326,14 @@ int main() {
                     if (aux == 0) s.perturbaMaquinas();
                     else s.perturbaPartes();
                 }
-            } else if (delta > 0) {
-                contador = 0;
-
+            } else if (delta > 0.0) {
+                
                 s = sLinha;
                 if (s.eficacia > sMelhor.eficacia) {
+                    contador = 0;
                     sMelhor = s;
                 }
+
             } else {
                 float x = randomFloat();
                 float aux = powf(e, -delta / T);

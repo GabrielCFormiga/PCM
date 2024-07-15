@@ -2001,6 +2001,97 @@ int solucao::swapPioresPartes() {
     return 1;
 }
 
+// esocolhe o pior cluster, levando em consideração a quantidade de 1`s fora
+// move ela para o cluster mais compatível (minimiza soma de 1`s fora)
+// retorna 0 se não foi possível mover
+// retorna 1 se foi possível
+int solucao::unionClusterPiorSomaOut() {
+    if (qtdClusters == 1) return 0; // não faz sentido a operação
+
+    // procura o pior cluster
+    int piorC, piorSoma = -1;
+
+    for (int c = 1; c <= qtdClusters; c++) {
+        int soma = 0;
+        
+        for (int m = 1; m <= qtdMaquinas; m++) {
+            for (int p = 1; p <= qtdPartes; p++) {
+                if (maquinas[m - 1] == c && partes[p - 1] != c) soma += matriz[m - 1][p - 1];
+                if (partes[p - 1] == c && maquinas[m - 1] != c) soma += matriz[m - 1][p - 1];
+            }
+        }
+
+        if (soma > piorSoma) {
+            piorSoma = soma;
+            piorC = c;
+        }
+
+    }
+
+    // procura o cluster mais compatível
+    int melhorC;
+    float maxComp = n1 + 1; 
+
+    for (int c = 1; c <= qtdClusters; c++) {
+        if (c == piorC) continue;
+
+        int comp = 0;
+
+        for (int m = 1; m <= qtdMaquinas; m++) {
+            for (int p = 1; p <= qtdPartes; p++) {
+                if (maquinas[m - 1] == c && partes[p - 1] != c && partes[p - 1] != piorC) comp += matriz[m - 1][p - 1];
+                if (maquinas[m - 1] == piorC && partes[p - 1] != c && partes[p - 1] != piorC) comp += matriz[m - 1][p - 1];
+                if (partes[p - 1] == c && maquinas[m - 1] != c && maquinas[m - 1] != piorC) comp += matriz[m - 1][p - 1];
+                if (partes[p - 1] == piorC && maquinas[m - 1] != c && maquinas[m - 1] != piorC) comp += matriz[m - 1][p - 1];
+            }
+        }
+
+        if (comp < maxComp) {
+            maxComp = comp;
+            melhorC = c;
+        }
+    }
+
+    // une piorC com melhorC
+    if (piorC < melhorC) std::swap(piorC, melhorC);
+
+    // une as maquinas
+    for (int i = 0; i < qtdMaquinas; i++) {
+        if (maquinas[i] == piorC) {
+            maquinas[i] = melhorC;
+            clusters[piorC - 1].first--;
+            clusters[melhorC - 1].first++;
+        }
+
+        if (maquinas[i] > piorC) {
+            int z = maquinas[i];
+            clusters[z - 1].first--;
+            maquinas[i] = z - 1;
+            clusters[z - 2].first++;
+        }
+    }   
+
+    // une as partes 
+    for (int i = 0; i < qtdPartes; i++) {
+        if (partes[i] == piorC) {
+            partes[i] = melhorC;
+            clusters[piorC - 1].second--;
+            clusters[melhorC - 1].second++;
+        }
+
+        if (partes[i] > piorC) {
+            int z = partes[i];
+            clusters[z - 1].second--;
+            partes[i] = z - 1;
+            clusters[z - 2].second++;
+        }
+    }
+
+    qtdClusters--;
+
+    return 1;
+}
+
 // faz uma perturbação linear de máquinas
 // move uma máquina do cluster i para o cluster i + 1 até que o cluster inicial receba uma máquina do último cluster 
 void solucao::perturbaMaquinas() {

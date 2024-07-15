@@ -71,6 +71,7 @@ class solucao {
         int swapPioresPartes();
 
         // métodos de perturbação
+        int unionClusterPiorSomaOut();
         void perturbaMaquinas();
         void perturbaPartes();
         
