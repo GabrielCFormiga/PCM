@@ -23,10 +23,11 @@ int main() {
 
     // começo do SA
     solucao sMelhor = s;
+    solucao sMelhorGlobal = s;
     float alpha = 0.98; // coeficiente de resfriamento
     float T = 10000;
     int iterT = 0; // número de iterações na temperatura T 
-    int SAmax = 500;
+    int SAmax = 400;
     int contador = 0;
 
     while (T > 0.00001) {
@@ -295,31 +296,150 @@ int main() {
             float delta = sLinha.getFObj() - s.eficacia;
             
 
-            if (contador > 2 * SAmax) {
-                contador = 0;
-                T = T * 1.15;
-
+            if (contador == 2 * SAmax || contador == 4 * SAmax) {
                 // perturbação
-                if (s.qtdClusters < min(s.qtdMaquinas, s.qtdPartes)) {
-                    s.splitPiorCluster();
-                    s.unionCluster();
-                } else {
-                    s.unionCluster();
-                    s.splitPiorCluster();
-                }
-                
-                for (int i = 0; i < 4; i++) {
-                    int aux = intervalRand(0, 1);
 
-                    if (aux == 0) s.perturbaMaquinas();
-                    else s.perturbaPartes();
+                T = T * 1.15;
+                
+                if (contador == 4 * SAmax) {
+                    contador = 0;
+
+                    for (int i = 0; i < 8 * SAmax; i++) {
+                        // pertuba de forma aleatória
+
+                        int op = intervalRand(1, 100);
+                        // 5% unionCluster, 15% splitCluster
+                        // 20% moverMaquina, 20% moverParte
+                        // 20% swapMaquina, 20% swapParte
+
+                        if (op <= 5) {
+                            // unionCluster
+                
+                            if (s.unionCluster() == 0) {
+                                // caso em que só há um cluster
+                                // ou seja, é preciso usar split para alterar a eficacia
+                                s.splitCluster();
+                            }
+
+                        } else if (op <= 20) {
+                            // split
+                
+                            if (s.splitCluster() == 0) {
+                                // caso em que o número de clusters é máximo
+                                // mover uma parte ou uma máquina é impossível
+                                // se a matriz não for quadrada uma das operações de mover é possível
+                                // escolha entre swapParte, swapMaquina ou unionCluster
+
+                                int opInterna = intervalRand(1, 60);
+                                if (s.qtdMaquinas != s.qtdPartes) opInterna = intervalRand(1, 80); // caso em que uma das operações de mover é possível
+
+                                if (opInterna <= 20) {
+                                    s.unionCluster();
+                                } else if (opInterna <= 40) {
+                                    s.swapPartes();
+                                } else if (opInterna <= 60) {
+                                    s.swapMaquinas();
+                                } else {
+                                    if (s.qtdPartes > s.qtdMaquinas) {
+                                        // o número de partes é maior do que o de máquinas
+                                        s.moverParte();
+                                    } else {
+                                        // o número de máquinas é maior do que o de partes
+                                        s.moverMaquina();
+                                    }
+                                }
+                            }
+
+                        } else if (op <= 40) {
+                            // moverMaquina
+                
+                            if (s.moverMaquina() == 0) {
+                                // caso em que o número de cluster é máximo ou 1
+                                // caso seja 1 a operação não alteraria a eficácia
+                                // se qtdMaquinas == qtdPartes, então mover uma parte também é impossível
+                                // escolha entre swapParte, swapMaquina, splitCcluster(caso qtdClusters = 1) ou unionClusters(caso qtdCluster = max)
+                                
+                                int opInterna = intervalRand(1, 60);
+                                if (s.qtdMaquinas != s.qtdPartes) opInterna = intervalRand(1, 80); // caso em que se pode mover uma parte
+
+                                if (s.qtdClusters == 1) {
+                                    s.splitCluster();
+                                } else if (opInterna <= 20) {
+                                    s.unionCluster();
+                                } else if (opInterna <= 40) {
+                                    s.swapPartes();
+                                } else if (opInterna <= 60) {
+                                    s.swapMaquinas();
+                                } else {
+                                    s.moverParte();
+                                }
+                            }
+
+                        } else if (op <= 60) {
+                            // moverParte
+                
+                            if (s.moverParte() == 0) {
+                                // caso em que o número de clusters é máximo ou 1
+                                // caso seja 1 a operação não alteraria a eficácia
+                                // se qtdPartes == qtdMaquinas, então mover uma maquina também é impossível
+                                // escolha entre swapParte, swapMaquina, splitCcluster(caso qtdClusters = 1) ou unionClusters(caso qtdCluster = max)
+                                
+                                int opInterna = intervalRand(1, 60);
+                                if (s.qtdMaquinas != s.qtdPartes) opInterna = intervalRand(1, 80); // caso em que se pode mover uma maquina
+
+                                if (s.qtdClusters == 1) {
+                                    s.splitCluster();
+                                } else if (opInterna <= 20) {
+                                    s.unionCluster();
+                                } else if (opInterna <= 40) {
+                                    s.swapPartes();
+                                } else if (opInterna <= 60) {
+                                    s.swapMaquinas();
+                                } else {
+                                    s.moverMaquina();
+                                }
+                            }
+
+                        } else if (op <= 80) {
+                            // swapMaquinas
+                
+                            if (s.swapMaquinas() == 0) {
+                                // caso em que só há um cluster
+                                // ou seja, é preciso usar split para alterar a eficacia
+                                s.splitCluster();
+                            }
+
+                        } else {
+                            // swapParte
+                
+                            if (s.swapPartes() == 0) {
+                                // caso em que só há um cluster
+                                // ou seja, é preciso usar split para alterar a eficacia
+                                s.splitCluster();
+                            }
+                        }
+                    }
+
+                    sMelhor = s;
+                } else {
+                    for (int i = 0; i < 4; i++) {
+                        int aux = intervalRand(0, 1);
+
+                        if (aux == 0) s.perturbaMaquinas();
+                        else s.perturbaPartes();
+                    }
                 }
+
             } else if (delta > 0) {
                 contador = 0;
 
                 s = sLinha;
                 if (s.eficacia > sMelhor.eficacia) {
                     sMelhor = s;
+                }
+
+                if (s.eficacia > sMelhorGlobal.eficacia) {
+                    sMelhorGlobal = s;
                 }
             } else {
                 float x = randomFloat();
@@ -335,9 +455,9 @@ int main() {
     }
 
     cout << l.identificador << endl;
-    cout << "eficacia = " << sMelhor.eficacia << endl;
-    cout << "n1 = " << sMelhor.n1 << endl;
-    cout << "n1out = " << sMelhor.n1out << endl;
-    cout << "n0in = " << sMelhor.n0in << endl;
-    sMelhor.exibeSolucao();
+    cout << "eficacia = " << sMelhorGlobal.eficacia << endl;
+    cout << "n1 = " << sMelhorGlobal.n1 << endl;
+    cout << "n1out = " << sMelhorGlobal.n1out << endl;
+    cout << "n0in = " << sMelhorGlobal.n0in << endl;
+    sMelhorGlobal.exibeSolucao();
 }
