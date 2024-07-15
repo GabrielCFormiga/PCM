@@ -43,7 +43,7 @@ int main() {
             // 10% unionPiorCluster, 10% splitPiorCluster
             // 12% moverPior2, 4% moverPiorMaquina5, 4% moverPiorParte5, 10% moverPiorMaquina2, 10% moverPiorParte2 
             // 5% moverMaquina, 5% moverParte
-            // 10% swapPioresMaquinas2, 10% swapPioresPartes
+            // 10% swapPioresMaquinas2, 10% swapPioresPartes2
             // 5% swapMaquina, 5% swapParte
             if (op <= 10) {
                 // unionPiorCluster
@@ -69,7 +69,7 @@ int main() {
                     if (opInterna <= 20) {
                         sLinha.unionPiorCluster();
                     } else if (opInterna <= 40) {
-                        sLinha.swapPioresPartes();
+                        sLinha.swapPioresPartes2();
                     } else if (opInterna <= 60) {
                         sLinha.swapPioresMaquinas2();
                     } else {
@@ -100,7 +100,7 @@ int main() {
                     } else if (op <= 40) {
                         sLinha.swapPioresMaquinas2();
                     } else if (op <= 60) {
-                        sLinha.swapPioresPartes();
+                        sLinha.swapPioresPartes2();
                     }
                 }
                 
@@ -121,7 +121,7 @@ int main() {
                     } else if (opInterna <= 20) {
                         sLinha.unionPiorCluster();
                     } else if (opInterna <= 40) {
-                        sLinha.swapPioresPartes();
+                        sLinha.swapPioresPartes2();
                     } else if (opInterna <= 60) {
                         sLinha.swapPioresMaquinas2();
                     } else {
@@ -146,7 +146,7 @@ int main() {
                     } else if (opInterna <= 20) {
                         sLinha.unionPiorCluster();
                     } else if (opInterna <= 40) {
-                        sLinha.swapPioresPartes();
+                        sLinha.swapPioresPartes2();
                     } else if (opInterna <= 60) {
                         sLinha.swapPioresMaquinas2();
                     } else {
@@ -171,7 +171,7 @@ int main() {
                     } else if (opInterna <= 20) {
                         sLinha.unionPiorCluster();
                     } else if (opInterna <= 40) {
-                        sLinha.swapPioresPartes();
+                        sLinha.swapPioresPartes2();
                     } else if (opInterna <= 60) {
                         sLinha.swapPioresMaquinas2();
                     } else {
@@ -196,7 +196,7 @@ int main() {
                     } else if (opInterna <= 20) {
                         sLinha.unionPiorCluster();
                     } else if (opInterna <= 40) {
-                        sLinha.swapPioresPartes();
+                        sLinha.swapPioresPartes2();
                     } else if (opInterna <= 60) {
                         sLinha.swapPioresMaquinas2();
                     } else {
@@ -221,7 +221,7 @@ int main() {
                     } else if (opInterna <= 20) {
                         sLinha.unionPiorCluster();
                     } else if (opInterna <= 40) {
-                        sLinha.swapPioresPartes();
+                        sLinha.swapPioresPartes2();
                     } else if (opInterna <= 60) {
                         sLinha.swapPioresMaquinas2();
                     } else {
@@ -246,7 +246,7 @@ int main() {
                     } else if (opInterna <= 20) {
                         sLinha.unionPiorCluster();
                     } else if (opInterna <= 40) {
-                        sLinha.swapPioresPartes();
+                        sLinha.swapPioresPartes2();
                     } else if (opInterna <= 60) {
                         sLinha.swapPioresMaquinas2();
                     } else {
@@ -264,9 +264,9 @@ int main() {
                 }
 
             } else if (op <= 90) {
-                // swapPioresPartes
+                // swapPioresPartes2
 
-                if (sLinha.swapPioresPartes() == 0) {
+                if (sLinha.swapPioresPartes2() == 0) {
                     // caso em que só há um cluster
                     // ou seja, é preciso usar split para alterar a eficacia
                     sLinha.splitPiorCluster();
