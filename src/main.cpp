@@ -41,7 +41,7 @@ int main() {
             solucao sLinha = s;
 
             // 10% unionPiorCluster, 10% split
-            // 16% moverPior2, 10% moverPiorMaquina2, 10% moverPiorParte2, 4% moverPiorMaquina5
+            // 12% moverPior2, 4% moverPiorMaquina5, 4% moverPiorParte5, 10% moverPiorMaquina2, 10% moverPiorParte2 
             // 5% moverMaquina, 5% moverParte
             // 10% swapPioresMaquinas, 10% swapPioresPartes
             // 5% swapMaquina, 5% swapParte
@@ -83,7 +83,7 @@ int main() {
                     }
                 }
 
-            } else if (op <= 36) {
+            } else if (op <= 32) {
                 // moverPior2
 
                 if (sLinha.moverPior2() == 0) {
@@ -104,7 +104,7 @@ int main() {
                     }
                 }
                 
-            } else if (op <= 40) {
+            } else if (op <= 36) {
                 // moverPiorMaquina5
 
                 if (sLinha.moverPiorMaquina5() == 0) {
@@ -126,6 +126,31 @@ int main() {
                         sLinha.swapPioresMaquinas();
                     } else {
                         sLinha.moverPiorParte2();
+                    }
+                }
+
+            } else if (op <= 40) {
+                // moverPiorParte5
+
+                if (sLinha.moverPiorParte5() == 0) {
+                    // caso em que o número de cluster é máximo ou 1
+                    // caso seja 1 a operação não alteraria a eficácia
+                    // se qtdMaquinas == qtdPartes, então mover uma parte também é impossível
+                    // escolha entre swapParte, swapMaquina, splitCcluster(caso qtdClusters = 1) ou unionClusters(caso qtdCluster = max)
+                    
+                    int opInterna = intervalRand(1, 60);
+                    if (s.qtdMaquinas != s.qtdPartes) opInterna = intervalRand(1, 80); // caso em que se pode mover uma maquina
+
+                    if (sLinha.qtdClusters == 1) {
+                        sLinha.splitCluster();
+                    } else if (opInterna <= 20) {
+                        sLinha.unionPiorCluster();
+                    } else if (opInterna <= 40) {
+                        sLinha.swapPioresPartes();
+                    } else if (opInterna <= 60) {
+                        sLinha.swapPioresMaquinas();
+                    } else {
+                        sLinha.moverPiorMaquina2();
                     }
                 }
 

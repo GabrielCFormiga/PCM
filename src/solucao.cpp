@@ -800,6 +800,72 @@ int solucao::moverPiorMaquina5() {
 
 }
 
+// esocolhe a pior parte, levando em consideração a quantidade de 1`s fora de clusters
+// move ela para o cluster mais compatível (maior soma de 1`s)
+// retorna 0 se não foi possível mover
+// retorna 1 se foi possível
+int solucao::moverPiorParte5() {
+    if (qtdClusters == 1) return 0; // não faz sentido a operação
+
+    // escolhe a pior parte
+    int pPior = -1, piorSoma = -1;
+    int cPior;
+
+    for (int p = 1; p <= qtdPartes; p++) {
+        int soma = 0;
+        cPior = partes[p - 1];
+        if (clusters[cPior - 1].second == 1) continue;
+
+        for (int m = 1; m <= qtdMaquinas; m++) {
+            if (maquinas[m - 1] != cPior) soma += matriz[m - 1][p - 1];
+        }
+
+        if (soma > piorSoma) {
+            pPior = p;
+            piorSoma = soma;
+        }
+    }
+
+    if (pPior == -1) return 0; // não há parte que possa ser movida de cluster
+
+    // procura o cluster com melhor compatibilidade
+    // no caso crítico esse cluster é o cluster original da parte
+    int melhorC1, melhorSoma1 = -1;
+    int melhorC0, melhorSoma0 = qtdMaquinas + 1;
+    for (int c = 1; c <= qtdClusters; c++) {
+        int soma1 = 0, soma0 = 0;
+        
+        for (int m = 1; m <= qtdMaquinas; m++) {
+            if (maquinas[m - 1] == c) {
+                if (matriz[m - 1][pPior - 1] == 1) soma1++;
+                else soma0++;
+            }
+        }
+
+        if (soma0 < melhorSoma0) {  
+            melhorSoma0 = soma0;
+            melhorC0 = c;
+        }
+        if (soma1 > melhorSoma1) {
+            melhorSoma1 = soma1;
+            melhorC1 = c;
+        }
+    }
+    
+
+    // se não há cluster de destino com pelo menos um 1 escolhe o cluster com a menor quantidade de 0`s 
+    if (melhorSoma1 == 0) melhorC1 = melhorC0;
+
+    // move a parte
+    cPior = partes[pPior - 1];
+    clusters[cPior - 1].second--;
+    partes[pPior - 1] = melhorC1;
+    clusters[melhorC1 - 1].second++;
+
+    return 1;
+
+}
+
 // escolhe um entre os três piores clusters (6 : 3 : 1 ou 6 : 4 ou caso único)
 // escolhe uma entre as três piores máquinas (6 : 3 : 1 ou 6 : 4 ou caso único)
 // move para um entre os três cluster mais compatíveis (maior soma de 1`s) (6 : 3 : 1 ou 6 : 4 ou caso único)
