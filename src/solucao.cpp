@@ -462,6 +462,65 @@ int solucao::unionPiorCluster() {
     return 1;
 }
 
+// divide o pior cluster pela metade
+// retona 0 se não foi possível dividir algum cluster
+// retorna 1 se foi possível
+int solucao::splitPiorCluster() {
+    // armazena os clusters que podem ser divididos
+    std::vector<int> possivel;
+    for(int i = 0; i < qtdClusters; i++) {
+        if (clusters[i].first > 1 && clusters[i].second > 1) possivel.push_back(i + 1);
+    }
+
+    if (possivel.empty()) return 0;
+
+    atualizaEficaciaClusters();
+
+    // procura o pior cluster
+    int piorC;
+    float minEficacia = 1.1;
+    for (int i = 0; i < possivel.size(); i++) {
+        if (eficaciaClusters[possivel[i] - 1] < minEficacia) {
+            minEficacia = eficaciaClusters[possivel[i] - 1];
+            piorC = possivel[i];
+        }       
+    }
+
+    int novo = qtdClusters + 1;
+
+    // divide as maquinas
+    int splits = (clusters[piorC - 1].first) / 2;
+    
+    for (int i = 0; i < qtdMaquinas; i++) {
+        if (maquinas[i] == piorC) {
+            clusters[piorC - 1].first--;
+            maquinas[i] = novo;
+            clusters[novo - 1].first++;
+            splits--;
+        }
+
+        if (splits == 0) break;
+    }
+
+    // divide as partes
+    splits = (clusters[piorC - 1].second) / 2;
+
+    for (int i = 0; i < qtdPartes; i++) {
+        if (partes[i] == piorC) {
+            clusters[piorC - 1].second--;
+            partes[i] = novo;
+            clusters[novo - 1].second++;
+            splits--;
+        }
+
+        if (splits == 0) break;
+    }
+
+    // adiciona o novo cluster à conta
+    qtdClusters++;
+    return 1;
+}
+
 // move a pior parte ou máquina do pior cluster para o cluster mais compatível (menor soma de 0`s)
 // retorna 0 se não foi possível mover
 // retorna 1 se foi possível

@@ -40,7 +40,7 @@ int main() {
             int op = intervalRand(1, 100);
             solucao sLinha = s;
 
-            // 10% unionPiorCluster, 10% split
+            // 10% unionPiorCluster, 10% splitPiorCluster
             // 12% moverPior2, 4% moverPiorMaquina5, 4% moverPiorParte5, 10% moverPiorMaquina2, 10% moverPiorParte2 
             // 5% moverMaquina, 5% moverParte
             // 10% swapPioresMaquinas, 10% swapPioresPartes
@@ -51,13 +51,13 @@ int main() {
                 if (sLinha.unionPiorCluster() == 0) {
                     // caso em que só há um cluster
                     // ou seja, é preciso usar split para alterar a eficacia
-                    sLinha.splitCluster();
+                    sLinha.splitPiorCluster();
                 }
 
             } else if (op <= 20) {
                 // split
                 
-                if (sLinha.splitCluster() == 0) {
+                if (sLinha.splitPiorCluster() == 0) {
                     // caso em que o número de clusters é máximo
                     // mover uma parte ou uma máquina é impossível
                     // se a matriz não for quadrada uma das operações de mover é possível
@@ -94,7 +94,7 @@ int main() {
                     int opInterna = intervalRand(1, 60);
                     
                     if (sLinha.qtdClusters == 1) {
-                        sLinha.splitCluster();
+                        sLinha.splitPiorCluster();
                     } else if (op <= 20) {
                         sLinha.unionPiorCluster();
                     } else if (op <= 40) {
@@ -117,7 +117,7 @@ int main() {
                     if (s.qtdMaquinas != s.qtdPartes) opInterna = intervalRand(1, 80); // caso em que se pode mover uma parte
 
                     if (sLinha.qtdClusters == 1) {
-                        sLinha.splitCluster();
+                        sLinha.splitPiorCluster();
                     } else if (opInterna <= 20) {
                         sLinha.unionPiorCluster();
                     } else if (opInterna <= 40) {
@@ -142,7 +142,7 @@ int main() {
                     if (s.qtdMaquinas != s.qtdPartes) opInterna = intervalRand(1, 80); // caso em que se pode mover uma maquina
 
                     if (sLinha.qtdClusters == 1) {
-                        sLinha.splitCluster();
+                        sLinha.splitPiorCluster();
                     } else if (opInterna <= 20) {
                         sLinha.unionPiorCluster();
                     } else if (opInterna <= 40) {
@@ -167,7 +167,7 @@ int main() {
                     if (s.qtdMaquinas != s.qtdPartes) opInterna = intervalRand(1, 80); // caso em que se pode mover uma parte
 
                     if (sLinha.qtdClusters == 1) {
-                        sLinha.splitCluster();
+                        sLinha.splitPiorCluster();
                     } else if (opInterna <= 20) {
                         sLinha.unionPiorCluster();
                     } else if (opInterna <= 40) {
@@ -192,7 +192,7 @@ int main() {
                     if (s.qtdMaquinas != s.qtdPartes) opInterna = intervalRand(0, 80); // caso em que se pode mover uma maquina
 
                     if (sLinha.qtdClusters == 1) {
-                        sLinha.splitCluster();
+                        sLinha.splitPiorCluster();
                     } else if (opInterna <= 20) {
                         sLinha.unionPiorCluster();
                     } else if (opInterna <= 40) {
@@ -217,7 +217,7 @@ int main() {
                     if (s.qtdMaquinas != s.qtdPartes) opInterna = intervalRand(1, 80); // caso em que se pode mover uma parte
 
                     if (sLinha.qtdClusters == 1) {
-                        sLinha.splitCluster();
+                        sLinha.splitPiorCluster();
                     } else if (opInterna <= 20) {
                         sLinha.unionPiorCluster();
                     } else if (opInterna <= 40) {
@@ -242,7 +242,7 @@ int main() {
                     if (s.qtdMaquinas != s.qtdPartes) opInterna = intervalRand(1, 80); // caso em que se pode mover uma maquina
 
                     if (sLinha.qtdClusters == 1) {
-                        sLinha.splitCluster();
+                        sLinha.splitPiorCluster();
                     } else if (opInterna <= 20) {
                         sLinha.unionPiorCluster();
                     } else if (opInterna <= 40) {
@@ -260,7 +260,7 @@ int main() {
                 if (sLinha.swapPioresMaquinas() == 0) {
                     // caso em que só há um cluster
                     // ou seja, é preciso usar split para alterar a eficacia
-                    sLinha.splitCluster();
+                    sLinha.splitPiorCluster();
                 }
 
             } else if (op <= 90) {
@@ -269,7 +269,7 @@ int main() {
                 if (sLinha.swapPioresPartes() == 0) {
                     // caso em que só há um cluster
                     // ou seja, é preciso usar split para alterar a eficacia
-                    sLinha.splitCluster();
+                    sLinha.splitPiorCluster();
                 }
 
             } else if (op <= 95) {
@@ -278,7 +278,7 @@ int main() {
                 if (sLinha.swapMaquinas() == 0) {
                     // caso em que só há um cluster
                     // ou seja, é preciso usar split para alterar a eficacia
-                    sLinha.splitCluster();
+                    sLinha.splitPiorCluster();
                 }
 
             } else {
@@ -287,7 +287,7 @@ int main() {
                 if (sLinha.swapPartes() == 0) {
                     // caso em que só há um cluster
                     // ou seja, é preciso usar split para alterar a eficacia
-                    sLinha.splitCluster();
+                    sLinha.splitPiorCluster();
                 }
 
             }
@@ -301,11 +301,11 @@ int main() {
 
                 // perturbação
                 if (s.qtdClusters < min(s.qtdMaquinas, s.qtdPartes)) {
-                    s.splitCluster();
+                    s.splitPiorCluster();
                     s.unionCluster();
                 } else {
                     s.unionCluster();
-                    s.splitCluster();
+                    s.splitPiorCluster();
                 }
                 
                 for (int i = 0; i < 4; i++) {

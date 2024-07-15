@@ -49,6 +49,8 @@ class solucao {
 
         // geração eficiente de vizinhanças
         int unionPiorCluster();
+
+        int splitPiorCluster();
         
         int moverPior2();
         int moverPior3();
